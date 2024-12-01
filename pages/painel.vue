@@ -1,9 +1,19 @@
 <template>
   <div>
-    {{ user.email }}    
-    <button @click="logout" type="button" class="self-start btn mt-6">
-      Logout
-    </button>
+    <div>
+      {{ user.email }}    
+      <button @click="logout" type="button" class="self-start btn mt-6">
+        Logout
+      </button>
+    </div>
+    <div>
+      <ul>
+        <li v-for="c in clients">
+          {{ c.name  }} <NuxtLink :to="`/simula/${c.id}`">{{ c.id }}</NuxtLink>
+        </li>
+      </ul>
+    </div>
+    
   </div>
 </template>
 
@@ -23,9 +33,14 @@ async function logout() {
     router.push("/login");
   } catch (error) {
     console.log(error.message);
-    
   }
 }
+
+const { data: clients } = await useAsyncData('clients', async () => {
+  const { data } = await client.from('clients').select();
+
+  return data
+})
 </script>
 
 <style>
