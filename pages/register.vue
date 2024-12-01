@@ -36,7 +36,7 @@ async function signUp() {
 </script>
 
 <template>
-    <form class="row flex-center flex" @submit.prevent="signUp">
+    <form class="row flex-center flex" @submit.prevent="handleLogin">
         <div class="col-6 form-widget">
             <h1 class="header">Anodox Sales Support</h1>
             <!-- <p class="description">Sign in via magic link with your email below</p> -->

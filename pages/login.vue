@@ -1,42 +1,36 @@
 <script setup>
-const supabase = useSupabaseClient()
-
-const loading = ref(false)
-const email = ref('')
-const password = ref(null);
-
-const errorMsg = ref(null);
-const successMsg = ref(null);
-
-const handleLogin = async () => {
-    try {
-        loading.value = true
-        const { error } = await supabase.auth.signInWithOtp({ email: email.value })
-        if (error) throw error
-        alert('Check your email for the login link!')
-    } catch (error) {
-        alert(error.error_description || error.message)
-    } finally {
-        loading.value = false
-    }
+const user = useSupabaseUser();
+if (user.value) {
+    router.push("/painel");
 }
 
-async function signUp() {
+const client = useSupabaseClient();
+const router = useRouter();
+
+const email = ref("");
+const password = ref(null);
+const errorMsg = ref(null);
+
+const loading = ref(false);
+
+async function signIn() {
     try {
-        const { data, error } = await supabase.auth.signUp({
+        loading.value = true;
+        const { error } = await client.auth.signInWithPassword({
             email: email.value,
             password: password.value,
         });
         if (error) throw error;
-        successMsg.value = "Check your email to confirm your account"
+        router.push("/painel")
     } catch (error) {
         errorMsg.value = error.message;
+        loading.value = false;
     }
 }
 </script>
 
 <template>
-    <form class="row flex-center flex" @submit.prevent="handleLogin">
+    <form class="row flex-center flex" @submit.prevent="signIn">
         <div class="col-6 form-widget">
             <h1 class="header">Anodox Sales Support</h1>
             <p class="description">Plataforma interna para suporte de vendas</p>
@@ -49,6 +43,10 @@ async function signUp() {
             <div>
                 <input type="submit" class="button block" :value="loading ? 'Acessando' : 'Login'" :disabled="loading" />
             </div>
+            <div v-if="errorMsg" class="">
+                {{ errorMsg }}
+            </div>
+
         </div>
     </form>
 </template>
