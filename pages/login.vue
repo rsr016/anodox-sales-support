@@ -25,38 +25,34 @@ async function signIn() {
     }
 }
 
-onMounted( async () => {
-    if (user.value) {
-        setTimeout(500);
-        router.push("/painel");
+onMounted(async () => {
+    if (user) {
+        setTimeout(() => router.push("/painel"), 2000);
     }
 });
 </script>
 
 <template>
     <div>
-        <div v-if="!user.value">
-            <form class="row flex-center flex" @submit.prevent="signIn">
-                <div class="col-6 form-widget">
-                    <h1 class="header">Anodox Sales Support</h1>
-                    <p class="description">Plataforma interna para suporte de vendas</p>
+        <div class="flex justify-center container" v-if="!user">
+            <form class="flex flex-center shadow-lg p-12 border rounded-lg row" @submit.prevent="signIn">
+                <div class="form-widget p-6">
+                    <h1 class="mb-5 font-bold header self-center">Anodox Sales Support</h1>
+                    <p class="my-2 description self-center">Plataforma interna para suporte de vendas</p>
+                    <input class="inputField" type="email" placeholder="Your email" v-model="email" />
+                    <input class="inputField" type="password" placeholder="Your password" v-model="password" />
                     <div>
-                        <input class="inputField" type="email" placeholder="Your email" v-model="email" />
+                        <input type="submit" class="block my-3 p-3 btn-light button" :value="loading ? 'Acessando' : 'Login'"
+                            :disabled="loading" />
                     </div>
-                    <div>
-                        <input class="inputField" type="password" placeholder="Your password" v-model="password" />
-                    </div>
-                    <div>
-                        <input type="submit" class="button block" :value="loading ? 'Acessando' : 'Login'" :disabled="loading" />
-                    </div>
-                    <div v-if="errorMsg" class="">
-                        {{ errorMsg }}
+                    <div v-if="errorMsg" class="mx-auto my-0 p-0 text-red-700">
+                        <span>{{ errorMsg }}</span>
                     </div>
 
                 </div>
             </form>
         </div>
-        <div v-else>
+        <div v-else class="flex justify-center container">
             Conectado como {{ user.email }}. Redirecionando.
         </div>
     </div>

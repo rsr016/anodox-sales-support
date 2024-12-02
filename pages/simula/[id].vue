@@ -1,25 +1,29 @@
 <template>
-  <div>
+  <div class="container">
     <p>User ID: {{ $route.params.id }}</p>
-    <p>Project ID: {{ project.id }}</p>
+    <p>Project ID: {{ project}}</p>
+    <!-- <PowerChart /> -->
+    <BESSChart :data="performance" />
     <p class="my-4">Time data</p>
     <table>
-      <tr>
-        <th>Index</th>
-        <th>Time</th>
-        <th>Agg</th>
-        <th>Peak</th>
-        <th>Off-peak</th>
-        <th>Energy</th>
-      </tr>
-      <tr v-for="(perf, index) in performance" :key="index">
-        <td>{{ index }}</td>
-        <td>{{ perf.timestamp }}</td>
-        <td>{{ perf.aggregate }}</td>
-        <td>{{ perf.peak }}</td>
-        <td>{{ perf.off_peak }}</td>
-        <td>{{ perf.bess_energy }}</td>
-      </tr>
+      <tbody>
+        <tr>
+          <th>Index</th>
+          <th>Time</th>
+          <th>Agg</th>
+          <th>Peak</th>
+          <th>Off-peak</th>
+          <th>Energy</th>
+        </tr>
+        <tr v-for="(perf, index) in performance" :key="index">
+          <td>{{ index }}</td>
+          <td>{{ perf.timestamp }}</td>
+          <td>{{ perf.aggregate }}</td>
+          <td>{{ perf.peak }}</td>
+          <td>{{ perf.off_peak }}</td>
+          <td>{{ perf.bess_energy }}</td>
+        </tr>
+      </tbody>  
     </table>
     <!-- <div>
       <ul>
@@ -105,6 +109,10 @@ function consumerBESS() {
     }
 
     item.bess_soc = item.bess_energy / item.bess_capacity;
+
+    item.service_grid = item.aggregate - item.bess_net_discharge * 4;
+    item.service_to_bess = item.bess_gross_charge * 4;
+    item.service_from_bess = item.bess_net_discharge * 4;
 
     arr[index] = item;
   });
