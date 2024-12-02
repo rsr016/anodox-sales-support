@@ -1,11 +1,36 @@
 <template>
   <div class="container">
-    <p>User ID: {{ $route.params.id }}</p>
-    <p>Project ID: {{ project}}</p>
+    <div class="flex justify-between py-5">
+      <div class="col-6">
+        <p>User ID: {{ $route.params.id }}</p>
+        <p>Project ID: {{ project.id }}</p>
+      </div>
+      <div class="col-6">
+        <NuxtImg src="/HiPower_ALSES_XL.webp" class="max-h-50" />
+        <p class="font-semibold text-gray-900">Equipamento sugerido: ALSES-2150-1000 </p>
+      </div>
+
+    </div>
+    <!-- <ul role="list" class="divide-y divide-gray-300">
+      <li class="flex justify-between gap-x-6 py-5" v-for="c in clients">
+        <div class="flex gap-x-4 min-w-0">
+          <div class="flex-auto min-w-0">
+            <p class="font-semibold text-gray-900">{{ c.name }}</p>
+            <p class="my-2 pl-1 text-gray-500 truncate">{{ c.type }}</p>
+            <button class="text-gray-500 btn-light">Configurar</button>
+          </div>
+        </div>
+        <div class="sm:flex sm:flex-col sm:items-end hidden shrink-0">
+          <p class="my-auto text-gray-900"><NuxtTime :datetime="c.created_at" year="numeric" month="long" day="numeric" /></p>
+          <p class="justify-between my-auto text-gray-500"><NuxtLink class="btn-light" :to="`/simula/${c.id}`">Simulação</NuxtLink> <NuxtLink class="btn-light" :to="`/simula/${c.id}`">Relatório</NuxtLink></p>
+        </div>
+      </li>
+    </ul> -->
+
     <!-- <PowerChart /> -->
-    <BESSChart :data="performance" />
+    <BESSChart :data="performance" v-if="!loading" />
     <p class="my-4">Time data</p>
-    <table>
+    <table v-if="!loading">
       <tbody>
         <tr>
           <th>Index</th>
@@ -23,7 +48,7 @@
           <td>{{ perf.off_peak }}</td>
           <td>{{ perf.bess_energy }}</td>
         </tr>
-      </tbody>  
+      </tbody>
     </table>
     <!-- <div>
       <ul>
@@ -32,9 +57,6 @@
         </li>
       </ul>
     </div> -->
-    <div>
-      {{ performance[270] }}
-    </div>
   </div>
 </template>
 
@@ -46,25 +68,34 @@ const user = useSupabaseUser();
 const client = useSupabaseClient();
 const route = useRoute();
 
-// const performance = ref(null);
+const maxDate = ref(null);
+const minDate = ref(null);
 
+const loading = ref(true);
+
+const { data: selected_client } = await useAsyncData('selected_client', async () => {
+  const { data } = await client.from('clients').select().eq('id', route.params.id);
+  return data
+})
 
 const { data: project } = await useAsyncData('project', async () => {
   const { data } = await client.from('projects').select().eq('client_id', route.params.id);
   return data[0]
 })
 
-const { data: performance } = await useAsyncData('performance', async () => {
-  const { data } = await client.from('consumptions').select('timestamp, aggregate, peak, off_peak').eq('project_id', project.value.id);
-  return data
-})
-
 const { data: tstamps_limits } = await useAsyncData('tstamps_limits', async () => {
   const { data } = await client.rpc('get_consumption_timestamps', {
     pid: project.value.id
   });
+  maxDate.value = Date.parse(data[0].max_timestamp);
+  minDate.value = Date.parse(data[0].min_timestamp);
   return data
 })
+
+const { data: performance } = await useAsyncData('performance', async () => {
+  const { data } = await client.from('consumptions').select('timestamp, aggregate, peak, off_peak').eq('project_id', project.value.id);
+  return data
+});
 
 function consumerBESS() {
 
@@ -116,10 +147,12 @@ function consumerBESS() {
 
     arr[index] = item;
   });
+  loading.value = false;
 }
 
 onMounted(async () => {
   consumerBESS();
+  loading.value = false;
   // console.log(performance.value[270]);
 });
 

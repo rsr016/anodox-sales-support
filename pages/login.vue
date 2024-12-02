@@ -27,7 +27,7 @@ async function signIn() {
 
 onMounted(async () => {
     if (user) {
-        setTimeout(() => router.push("/painel"), 2000);
+        setTimeout(() => router.push("/painel"), 1500);
     }
 });
 </script>
@@ -53,7 +53,9 @@ onMounted(async () => {
             </form>
         </div>
         <div v-else class="flex justify-center container">
-            Conectado como {{ user.email }}. Redirecionando.
+            <div class="flex flex-center shadow-lg p-12 border rounded-lg row" @submit.prevent="signIn">
+                <p>Conectado como {{ user.email }}. Redirecionando.</p>
+            </div>
         </div>
     </div>
 </template>

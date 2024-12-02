@@ -155,7 +155,7 @@ const options = {
       marker: {
         enabled: false
       },
-      color: colors.red[200]
+      color: colors.gray[200]
     },
 
     {
@@ -190,6 +190,7 @@ const options = {
       fillOpacity: 0.3,
       color: colors.green[600]
     },
+
     {
       name: 'Consumo Novo',
       id: 'consumo_novo',

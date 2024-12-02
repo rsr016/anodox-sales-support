@@ -5,9 +5,14 @@
 </template>
 
 <script setup>
+const router = useRouter();
 definePageMeta({
-    // redirect: ["/login"]
+    // redirect: ["login"]
 })
+
+onMounted(async () => {
+    router.push("/login");
+});
 
 </script>
 

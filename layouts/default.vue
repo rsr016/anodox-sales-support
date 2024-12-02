@@ -2,14 +2,12 @@
     <div>
         <header class="bg-[--custom-bg-color] shadow-lg py-3">
             <nav class="flex justify-between mx-auto p-4 container" v-if="user">
-                <span>
-                    Logo Aqui
-                </span>
+                <NuxtImg src="/anodox-logo-white_1.avif" />
                 <ul class="flex gap-4">
                     <li class="my-auto">
                         <NuxtLink to="/painel">Painel</NuxtLink>
                     </li>
-                    <li>
+                    <li class="my-auto">
                         <button @click="logout" type="button" class="btn-dark self-start">
                             Logout
                         </button>
@@ -20,9 +18,7 @@
                 </ul>
             </nav>
             <nav class="flex justify-left mx-auto p-4 container" v-else>
-                <span>
-                    Logo Aqui
-                </span>
+                <NuxtImg src="/anodox-logo-white_1.avif" />
             </nav>
         </header>
     </div>
