@@ -3,6 +3,24 @@
     <p>User ID: {{ $route.params.id }}</p>
     <p>Project ID: {{ project.id }}</p>
     <p class="my-4">Time data</p>
+    <table>
+      <tr>
+        <th>Index</th>
+        <th>Time</th>
+        <th>Agg</th>
+        <th>Peak</th>
+        <th>Off-peak</th>
+        <th>Energy</th>
+      </tr>
+      <tr v-for="(perf, index) in performance" :key="index">
+        <td>{{ index }}</td>
+        <td>{{ perf.timestamp }}</td>
+        <td>{{ perf.aggregate }}</td>
+        <td>{{ perf.peak }}</td>
+        <td>{{ perf.off_peak }}</td>
+        <td>{{ perf.bess_energy }}</td>
+      </tr>
+    </table>
     <!-- <div>
       <ul>
         <li v-for="cons in performance">
@@ -11,7 +29,7 @@
       </ul>
     </div> -->
     <div>
-      <!-- {{ performance[270] }} -->
+      {{ performance[270] }}
     </div>
   </div>
 </template>
@@ -45,7 +63,7 @@ const { data: tstamps_limits } = await useAsyncData('tstamps_limits', async () =
 })
 
 function consumerBESS() {
-  
+
   performance.value.forEach((item, index, arr) => {
 
     var item = arr[index];
@@ -59,7 +77,7 @@ function consumerBESS() {
     if (index == 0) {
       item.bess_energy = 0;
     } else {
-      item.bess_energy = arr[index-1].bess_energy;
+      item.bess_energy = arr[index - 1].bess_energy;
     }
 
     if (item.peak > 0) {
@@ -71,7 +89,7 @@ function consumerBESS() {
     }
 
     if (item.power_available > 0) {
-      item.bess_gross_charge = Math.min(item.power_available / 4, (item.bess_capacity - item.bess_energy) / item.eff_charge);
+      item.bess_gross_charge = Math.min(item.power_available / 4, (item.bess_max - item.bess_energy) / item.eff_charge);
       item.bess_net_charge = item.bess_gross_charge * item.eff_charge;
       item.bess_gross_discharge = 0;
       item.bess_net_discharge = 0;
@@ -80,21 +98,21 @@ function consumerBESS() {
     } else if (item.power_requested > 0) {
       item.bess_gross_charge = 0;
       item.bess_net_charge = 0;
-      item.bess_gross_discharge = Math.min(item.bess_energy, item.power_requested / 4 / item.eff_discharge);
+      item.bess_gross_discharge = Math.min(item.bess_energy - item.bess_min, item.power_requested / 4 / item.eff_discharge);
       item.bess_net_discharge = item.bess_gross_discharge * item.eff_discharge;
 
       item.bess_energy -= item.bess_gross_discharge;
     }
 
     item.bess_soc = item.bess_energy / item.bess_capacity;
-    
+
     arr[index] = item;
   });
 }
 
-onMounted( async () => {
-    consumerBESS();
-    // console.log(performance.value[270]);
+onMounted(async () => {
+  consumerBESS();
+  // console.log(performance.value[270]);
 });
 
 </script>
