@@ -31,7 +31,7 @@
           <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedStart, 'dd/MM/yyy')" :ui="{base: 'border p-3 rounded-md'}"/>
 
           <template #panel="{ close }">
-            <DatePicker v-model="selectedStart" is-required @close="close" />
+            <DatePicker v-model="selectedStart" is-required @close="close" :min-date="tstamps_limits[0].min_timestamp" :max-date="selectedEnd" />
           </template>
         </UPopover>
         <p class="justify-self-center text-sm">Mínimo {{format(tstamps_limits[0].min_timestamp, 'dd/MM/yyy')}}</p>
@@ -42,7 +42,7 @@
           <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedEnd, 'dd/MM/yyy')" :ui="{base: 'border p-3 rounded-md'}"/>
 
           <template #panel="{ close }">
-            <DatePicker v-model="selectedEnd" is-required @close="close" />
+            <DatePicker v-model="selectedEnd" is-required @close="close" :min-date="selectedStart" :max-date="tstamps_limits[0].max_timestamp"/>
           </template>
         </UPopover>
         <p class="justify-self-center text-sm">Máximo {{format(tstamps_limits[0].max_timestamp, 'dd/MM/yyy')}}</p>
