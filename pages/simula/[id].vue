@@ -48,10 +48,10 @@
         <p class="justify-self-center text-sm">Máximo {{format(tstamps_limits[0].max_timestamp, 'dd/MM/yyy')}}</p>
       </div>
     </div>
-    <div class="justify-center mx-auto container">
+    <div class="justify-center mx-auto px-0 container">
       <PowerChart :data="filtered_performance" v-if="!loading" :ui="{base: 'justify-self-center mx-auto mb-5 m-w-0'}" />
     </div>
-    <div class="justify-center mx-auto container">
+    <div class="justify-center mx-auto px-0 container">
       <BESSChart :data="filtered_performance" v-if="!loading" :ui="{base: 'justify-self-center mx-auto mb-5 m-w-0'}" />
     </div>
     <div class="container" v-if="!loading">

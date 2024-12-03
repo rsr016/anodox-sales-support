@@ -35,7 +35,7 @@ onMounted(async () => {
 <template>
     <div>
         <div class="flex justify-center container" v-if="!user">
-            <form class="flex flex-center shadow-lg p-12 border rounded-lg row" @submit.prevent="signIn">
+            <form class="flex flex-center shadow-lg mt-3 sm:p-12 border rounded-lg row" @submit.prevent="signIn">
                 <div class="form-widget p-6">
                     <h1 class="mb-5 font-bold header self-center">Anodox Sales Support</h1>
                     <p class="my-2 description self-center">Plataforma interna para suporte de vendas</p>
