@@ -33,9 +33,9 @@
             <button class="text-gray-500 btn-light">Configurar</button>
           </div>
         </div>
-        <div class="sm:flex sm:flex-col sm:items-end hidden shrink-0">
+        <div class="sm:flex sm:flex-col sm:items-center align-between shrink-0">
           <p class="my-auto text-gray-900"><NuxtTime :datetime="c.created_at" year="numeric" month="long" day="numeric" /></p>
-          <p class="justify-between my-auto text-gray-500"><NuxtLink class="btn-light" :to="`/simula/${c.id}`">Simulação</NuxtLink> <NuxtLink class="btn-light" :to="`/simula/${c.id}`">Relatório</NuxtLink></p>
+          <p class="justify-between my-auto pt-3 text-gray-500"><NuxtLink class="btn-light" :to="`/simula/${c.id}`">Simulação</NuxtLink> <NuxtLink class="btn-light" :to="`/simula/${c.id}`">Relatório</NuxtLink></p>
         </div>
       </li>
     </ul>

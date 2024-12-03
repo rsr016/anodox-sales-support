@@ -49,12 +49,14 @@
       </div>
     </div>
     <div class="justify-center mx-auto container">
+      <PowerChart :data="filtered_performance" v-if="!loading" :ui="{base: 'justify-self-center mx-auto mb-5 m-w-0'}" />
+    </div>
+    <div class="justify-center mx-auto container">
       <BESSChart :data="filtered_performance" v-if="!loading" :ui="{base: 'justify-self-center mx-auto mb-5 m-w-0'}" />
     </div>
-
     <div class="container" v-if="!loading">
       <div class="flex justify-center align-middle">
-        <p class="my-auto mr-5">Paginas</p>
+        <p class="sm:flex hidden my-auto mr-5">Paginas</p>
         <!-- <p class="my-auto">{{ page }} de {{ pages.length }}</p> -->
         <div class="border-gray-200 dark:border-gray-700 py-3.5">
           <UPagination v-model="page" :page-count="pageCount" :total="performance.length" class="container" :ui="{

@@ -30,24 +30,16 @@ const peakBands = computed(function(){
   return bands;
 });
 
-const powerOriginal = computed(() => {
-  return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: p.aggregate}));
+const bessEnergy = computed(() => {
+  return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: p.bess_energy}));
 });
 
-const powerFromGrid = computed(() => {
-  return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: p.service_grid}));
+const bessCharge = computed(() => {
+  return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: p.bess_net_charge}));
 });
 
-const powerToBESS = computed(() => {
-  return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: p.service_to_bess}));
-});
-
-const powerFromBESS = computed(() => {
-  return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: -p.service_from_bess}));
-});
-
-const powerLimit = computed(() => {
-  return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: p.contracted}));
+const bessDischarge = computed(() => {
+  return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: -p.bess_net_discharge}));
 });
 
 const options = computed(() => { return{
@@ -68,10 +60,7 @@ const options = computed(() => { return{
     plotBands: peakBands.value,
   },
   title: {
-    text: 'Demanda requisitada da rede'
-  },
-  caption: {
-    text: 'Perfil de consumo da rede'
+    text: 'Fluxo de Energia BESS'
   },
   credits: {
     enabled: false
@@ -100,7 +89,7 @@ const options = computed(() => { return{
         }
       },
       title: {
-        text: 'Demanda kW',
+        text: 'Energia kW',
         style: {
           color: colors.slate[900]
         }
@@ -131,87 +120,56 @@ const options = computed(() => { return{
   },
   series: [
     {
-      name: 'Consumo original',
-      id: 'consumo_original',
+      yAxis: 0,
+      name: 'Energia Armazenada',
+      id: 'energia_armazenada',
       type: 'line',
-      data: powerOriginal.value,
+      data: bessEnergy.value,
       tooltip: {
         xDateFormat: '%H:%M %B %e, %Y',
-        valueSuffix: ' kW'
+        valueSuffix: ' kWh'
       },
       marker: {
         enabled: false,
       },
-      color: colors.slate[300]
+      color: colors.blue[300]
     },
     {
-      name: 'Demanda Contratada',
-      id: 'power',
-      type: 'line',
+      yAxis: 0,
+      name: 'Carga',
+      id: 'charge_bess',
+      type: 'area',
       tooltip: {
         headerFormat:
           '<span style="font-size: 11px;color:#666">{point.x:%B %e,' +
           ' %Y}</span><br>',
         pointFormat: '{point.name}<br><b>{point.y}</b>',
-        valueSuffix: ' kW'
+        valueSuffix: ' kWh'
       },
-      data: powerLimit.value,
+      data: bessCharge.value,
       marker: {
         enabled: false
       },
-      color: colors.gray[200]
+      color: colors.green[200]
     },
 
     {
-      name: 'Carga BESS',
-      id: 'charge_bess',
-      type: 'area',
-      data: powerToBESS.value,
-      tooltip: {
-        xDateFormat: '%H:%M %B %e, %Y',
-        valueSuffix: ' kW'
-      },
-      stacking: 'normal',
-      marker: {
-        enabled: false
-      },
-      fillOpacity: 0.3,
-      color: colors.orange[600]
-    },
-    {
-      name: 'Descarga BESS',
+      yAxis: 0,
+      name: 'Decarga',
       id: 'discharge_bess',
       type: 'area',
-      data: powerFromBESS.value,
+      data: bessDischarge.value,
       tooltip: {
         xDateFormat: '%H:%M %B %e, %Y',
-        valueSuffix: ' kW'
+        valueSuffix: ' kWh'
       },
       stacking: 'normal',
       marker: {
         enabled: false
       },
       fillOpacity: 0.3,
-      color: colors.green[600]
-    },
-
-    {
-      name: 'Consumo Novo',
-      id: 'consumo_novo',
-      type: 'area',
-      data: powerFromGrid.value,
-      tooltip: {
-        xDateFormat: '%H:%M %B %e, %Y',
-        valueSuffix: ' kW'
-      },
-      stacking: 'normal',
-      marker: {
-        enabled: false
-      },
-      fillOpacity: 0.3,
-      color: colors.blue[400]
+      color: colors.red[600]
     }
-    
   ]
 }});
 

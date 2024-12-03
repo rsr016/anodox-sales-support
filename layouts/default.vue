@@ -1,6 +1,6 @@
 <template>
     <div>
-        <header class="bg-[--custom-bg-color] shadow-lg py-3">
+        <header class="top-0 z-50 fixed flex flex-no-wrap bg-[--custom-bg-color] shadow-lg py-3 w-full">
             <nav class="flex justify-between mx-auto p-4 container" v-if="user">
                 <NuxtImg src="/anodox-logo-white_1.avif" />
                 <ul class="flex gap-4">
@@ -12,7 +12,7 @@
                             Logout
                         </button>
                     </li>
-                    <li class="my-auto">
+                    <li class="sm:flex hidden my-auto">
                         <span>{{ user.email }}</span>
                     </li>
                 </ul>
@@ -23,7 +23,7 @@
         </header>
     </div>
 
-    <div class="mx-auto mt-3 p-4 container">
+    <div class="mx-auto mt-24 p-4 container">
         <slot />
     </div>
 

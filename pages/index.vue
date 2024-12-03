@@ -1,13 +1,12 @@
 <template>
   <div>
-    Index
   </div>
 </template>
 
 <script setup>
 const router = useRouter();
 definePageMeta({
-    // redirect: ["login"]
+    // redirect: router.push("/login")
 })
 
 onMounted(async () => {
