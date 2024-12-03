@@ -21,31 +21,39 @@
       </div>
 
     </div>
+
+    <br>
     
     <div class="flex justify-start mx-auto my-5" v-if="!loading">
       <div class="mx-auto">
+        <p class="justify-self-left text-base">Início:</p>
         <UPopover :popper="{ placement: 'bottom-start' }" :ui="{base: 'bg-white z-50',}">
-          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedStart, 'd MMM, yyy')" />
+          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedStart, 'dd/MM/yyy')" :ui="{base: 'border p-3 rounded-md'}"/>
 
           <template #panel="{ close }">
             <DatePicker v-model="selectedStart" is-required @close="close" />
           </template>
         </UPopover>
+        <p class="justify-self-center text-sm">Mínimo {{format(tstamps_limits[0].min_timestamp, 'dd/MM/yyy')}}</p>
       </div>
       <div class="mx-auto">
+        <p class="justify-self-left text-base">Fim:</p>
         <UPopover :popper="{ placement: 'bottom-start' }" :ui="{base: 'bg-white z-50',}">
-          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedEnd, 'd MMM, yyy')" />
+          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedEnd, 'dd/MM/yyy')" :ui="{base: 'border p-3 rounded-md'}"/>
 
           <template #panel="{ close }">
             <DatePicker v-model="selectedEnd" is-required @close="close" />
           </template>
         </UPopover>
+        <p class="justify-self-center text-sm">Máximo {{format(tstamps_limits[0].max_timestamp, 'dd/MM/yyy')}}</p>
       </div>
     </div>
-    <BESSChart :data="filtered_performance" v-if="!loading" class="mb-5" />
+    <div class="justify-center mx-auto container">
+      <BESSChart :data="filtered_performance" v-if="!loading" :ui="{base: 'justify-self-center mx-auto mb-5 m-w-0'}" />
+    </div>
 
     <div class="container" v-if="!loading">
-      <div class="flex justify-end align-middle">
+      <div class="flex justify-center align-middle">
         <p class="my-auto mr-5">Paginas</p>
         <!-- <p class="my-auto">{{ page }} de {{ pages.length }}</p> -->
         <div class="border-gray-200 dark:border-gray-700 py-3.5">
@@ -121,6 +129,7 @@ const selectedEnd = ref(null);
 const loading = ref(true);
 
 const tableConfig = {
+  base: 'mx-auto justify-self-center',
   divide: 'divide-y divide-gray-300 dark:divide-gray-700',
   td: {
     base: 'whitespace-nowrap',

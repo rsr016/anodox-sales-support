@@ -1,6 +1,6 @@
 <template>
   <div>
-    <highchart :options="options" class="border rounded-lg" :update="['options']"/>
+    <highchart :options="options" class="border rounded-lg" :update="['options']" :redraw="true"/>
   </div>
 </template>
 
@@ -50,7 +50,8 @@ const powerLimit = computed(() => {
   return props.data.map((p, i) => ({x: Date.parse(p.timestamp), y: p.contracted}));
 });
 
-const options = {
+const options = computed(() => { return{
+  cycles: 0,
   chart: {
     type: 'area',
     scrollablePlotArea: {
@@ -112,6 +113,9 @@ const options = {
     area: {
             stacking: 'normal',
             lineWidth: 0.8,
+    },
+    line: {
+      lineWidth: 0.8,
     },
     flags: {
       tooltip: {
@@ -209,8 +213,7 @@ const options = {
     }
     
   ]
-};
-
+}});
 
 </script>
 

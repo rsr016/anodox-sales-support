@@ -14,7 +14,11 @@ export default defineNuxtConfig({
     '@morev/vue-transitions',
     'nuxt-plotly',
     'nuxt-highcharts',
-    '@nuxt/ui',
+    '@nuxt/ui'
+  ],
+  plugins: [
+    // Ensure this runs on client side only
+    { src: '~/plugins/highcharts.client.js', mode: 'client' }
   ],
   tailwindcss: { exposeConfig: true },
   headlessui: {
@@ -26,7 +30,7 @@ export default defineNuxtConfig({
   },
   vite: {
     optimizeDeps: {
-      include: ["plotly.js-dist-min"],
-    },
-  },
+      include: ['plotly.js-dist-min']
+    }
+  }
 })

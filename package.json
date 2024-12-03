@@ -21,6 +21,7 @@
     "chart.js": "^4.4.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "highcharts-vue": "^2.0.1",
     "nuxt": "^3.14.1592",
     "nuxt-headlessui": "^1.2.0",
     "nuxt-highcharts": "^3.1.1",
