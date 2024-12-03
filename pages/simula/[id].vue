@@ -1,66 +1,44 @@
 <template>
   <div class="container">
-    <div class="flex justify-between py-5">
-      <div class="col-6">
-        <p>User ID: {{ $route.params.id }}</p>
-        <p>Project ID: {{ project.id }}</p>
+    <div class="gap-4 grid grid-cols-12 grid-flow-col my-5">
+      <div class="gap-4 grid grid-cols-1 grid-rows-5 grid-flow-col col-span-6">
+        <div class="row-span-2">
+          <p class="font-semibold text-gray-900">{{ selected_client[0].name }}</p>
+          <p>{{ selected_client[0].type }}</p>
+        </div>
+        <div class="row-span-3" v-if="!loading">
+          <p class="">Capacidade: {{ project.energy_capacity }} kWh</p>
+          <p class="">Demanda contratada: {{ project.contracted_demand }} kW</p>
+          <p class="">Ciclos usados no período: {{ performance[performance.length - 1].bess_cycles.toFixed(2) }} ciclos
+          </p>
+        </div>
+        <div class="flex flex-col justify-center items-center">
+          <!-- <H-UIDatepicker v-model="selectedStart" /> -->
+        </div>
+
       </div>
-      <div class="col-6">
-        <NuxtImg src="/HiPower_ALSES_XL.webp" class="max-h-50" />
-        <p class="font-semibold text-gray-900">Equipamento sugerido: ALSES-2150-1000 </p>
+      <div class="col-span-6 max-h-64 container">
+        <NuxtImg src="/HiPower_ALSES_XL.webp" sizes="200px" class="place-self-center" />
+        <p class="font-semibold text-gray-900 place-self-center">Equipamento sugerido: ALSES-2150-1000 </p>
       </div>
 
     </div>
-    <!-- <ul role="list" class="divide-y divide-gray-300">
-      <li class="flex justify-between gap-x-6 py-5" v-for="c in clients">
-        <div class="flex gap-x-4 min-w-0">
-          <div class="flex-auto min-w-0">
-            <p class="font-semibold text-gray-900">{{ c.name }}</p>
-            <p class="my-2 pl-1 text-gray-500 truncate">{{ c.type }}</p>
-            <button class="text-gray-500 btn-light">Configurar</button>
-          </div>
-        </div>
-        <div class="sm:flex sm:flex-col sm:items-end hidden shrink-0">
-          <p class="my-auto text-gray-900"><NuxtTime :datetime="c.created_at" year="numeric" month="long" day="numeric" /></p>
-          <p class="justify-between my-auto text-gray-500"><NuxtLink class="btn-light" :to="`/simula/${c.id}`">Simulação</NuxtLink> <NuxtLink class="btn-light" :to="`/simula/${c.id}`">Relatório</NuxtLink></p>
-        </div>
-      </li>
-    </ul> -->
+    <BESSChart :data="performance" v-if="!loading" class="mb-5" />
+    <div class="container">
+      <UTable :rows="performance" :columns="columns">
+        <template #timestamp-data="{ row }">
+          <NuxtTime :datetime="row.timestamp" year="numeric" month="numeric" day="numeric" hour="numeric"
+            minute="numeric" class="mx-2" />
+        </template>
+      </UTable>
+    </div>
 
-    <!-- <PowerChart /> -->
-    <BESSChart :data="performance" v-if="!loading" />
-    <p class="my-4">Time data</p>
-    <table v-if="!loading">
-      <tbody>
-        <tr>
-          <th>Index</th>
-          <th>Time</th>
-          <th>Agg</th>
-          <th>Peak</th>
-          <th>Off-peak</th>
-          <th>Energy</th>
-        </tr>
-        <tr v-for="(perf, index) in performance" :key="index">
-          <td>{{ index }}</td>
-          <td>{{ perf.timestamp }}</td>
-          <td>{{ perf.aggregate }}</td>
-          <td>{{ perf.peak }}</td>
-          <td>{{ perf.off_peak }}</td>
-          <td>{{ perf.bess_energy }}</td>
-        </tr>
-      </tbody>
-    </table>
-    <!-- <div>
-      <ul>
-        <li v-for="cons in performance">
-          {{ cons.timestamp }} - {{ cons.aggregate }}
-        </li>
-      </ul>
-    </div> -->
   </div>
 </template>
 
 <script setup>
+import { format } from 'date-fns'
+
 definePageMeta({
   middleware: ["auth"],
 })
@@ -68,10 +46,24 @@ const user = useSupabaseUser();
 const client = useSupabaseClient();
 const route = useRoute();
 
-const maxDate = ref(null);
+
+const selectedStart = ref(null);
 const minDate = ref(null);
+const selectedEnd = ref(null);
+const maxDate = ref(null);
 
 const loading = ref(true);
+
+const columns = [
+  {
+    key: 'timestamp',
+    label: 'Hora'
+  },
+  {
+    key: 'aggregate',
+    label: 'Total'
+  }
+];
 
 const { data: selected_client } = await useAsyncData('selected_client', async () => {
   const { data } = await client.from('clients').select().eq('id', route.params.id);
@@ -87,17 +79,27 @@ const { data: tstamps_limits } = await useAsyncData('tstamps_limits', async () =
   const { data } = await client.rpc('get_consumption_timestamps', {
     pid: project.value.id
   });
-  maxDate.value = Date.parse(data[0].max_timestamp);
   minDate.value = Date.parse(data[0].min_timestamp);
+  // selectedStart.value = Date.parse(data[0].min_timestamp);
+  maxDate.value = Date.parse(data[0].max_timestamp);
   return data
 })
+selectedStart.value = new Date(minDate.value);
+selectedEnd.value = addDays(new Date(selectedStart.value), 7);
+
 
 const { data: performance } = await useAsyncData('performance', async () => {
   const { data } = await client.from('consumptions').select('timestamp, aggregate, peak, off_peak').eq('project_id', project.value.id);
   return data
 });
 
-function consumerBESS() {
+function addDays(date, days) {
+  const newDate = new Date(date);
+  newDate.setDate(date.getDate() + days);
+  return newDate;
+}
+
+async function consumerBESS() {
 
   performance.value.forEach((item, index, arr) => {
 
@@ -111,8 +113,10 @@ function consumerBESS() {
 
     if (index == 0) {
       item.bess_energy = 0;
+      item.bess_cycles = 0;
     } else {
       item.bess_energy = arr[index - 1].bess_energy;
+      item.bess_cycles = arr[index - 1].bess_cycles;
     }
 
     if (item.peak > 0) {
@@ -140,6 +144,7 @@ function consumerBESS() {
     }
 
     item.bess_soc = item.bess_energy / item.bess_capacity;
+    item.bess_cycles += item.bess_net_discharge / item.bess_capacity;
 
     item.service_grid = item.aggregate - item.bess_net_discharge * 4;
     item.service_to_bess = item.bess_gross_charge * 4;

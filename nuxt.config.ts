@@ -13,7 +13,8 @@ export default defineNuxtConfig({
     'nuxt-lodash',
     '@morev/vue-transitions',
     'nuxt-plotly',
-    'nuxt-highcharts'
+    'nuxt-highcharts',
+    '@nuxt/ui',
   ],
   tailwindcss: { exposeConfig: true },
   headlessui: {
