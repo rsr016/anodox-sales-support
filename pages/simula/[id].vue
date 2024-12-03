@@ -24,14 +24,62 @@
 
     </div>
     <BESSChart :data="performance" v-if="!loading" class="mb-5" />
-    <div class="container">
-      <UTable :rows="performance" :columns="columns">
+    <div class="container" v-if="!loading">
+      <div class="flex justify-end align-middle">
+        <p class="my-auto mr-5">Paginas</p>
+        <!-- <p class="my-auto">{{ page }} de {{ pages.length }}</p> -->
+        <div class="border-gray-200 dark:border-gray-700 py-3.5">
+          <UPagination v-model="page" :page-count="pageCount" :total="performance.length" class="container" :ui="{
+            wrapper: 'flex items-center gap-1 btn',
+            base: 'border btn-light',
+            rounded: '!rounded-full min-w-[32px] justify-center',
+            default: {
+              activeButton: {
+                class: 'bg-slate-200'
+              }
+            }
+          }" />
+        </div>
+      </div>
+
+      <UTable :rows="rows" :columns="columns" :ui="tableConfig">
         <template #timestamp-data="{ row }">
           <NuxtTime :datetime="row.timestamp" year="numeric" month="numeric" day="numeric" hour="numeric"
             minute="numeric" class="mx-2" />
         </template>
+        <template #aggregate-data="{ row }">
+          <p class="justify-self-center">
+            {{ (row.aggregate).toFixed(2) }}
+          </p>
+        </template>
+        <template #service_grid-data="{ row }">
+          <p class="justify-self-center">
+            {{ (row.service_grid + row.service_to_bess - row.service_from_bess).toFixed(2) }}
+          </p>
+        </template>
+        <template #service_from_bess-data="{ row }">
+          <p class="justify-self-center">
+            {{ (row.service_from_bess).toFixed(2) }}
+          </p>
+        </template>
+        <template #service_to_bess-data="{ row }">
+          <p class="justify-self-center">
+            {{ (row.service_to_bess).toFixed(2) }}
+          </p>
+        </template>
+        <template #bess_energy-data="{ row }">
+          <p class="justify-self-center">
+            {{ (row.bess_energy).toFixed(2) }}
+          </p>
+        </template>
+        <template #bess_soc-data="{ row }">
+          <p class="justify-self-center">
+            {{ (row.bess_soc * 100).toFixed(0) }} %
+          </p>
+        </template>
       </UTable>
     </div>
+
 
   </div>
 </template>
@@ -54,16 +102,65 @@ const maxDate = ref(null);
 
 const loading = ref(true);
 
+const tableConfig = {
+  divide: 'divide-y divide-gray-300 dark:divide-gray-700',
+  td: {
+    base: 'whitespace-nowrap',
+  },
+  tr: {
+    base: 'hover:bg-slate-200',
+  }
+}
+
 const columns = [
   {
     key: 'timestamp',
-    label: 'Hora'
+    label: 'Hora',
   },
   {
     key: 'aggregate',
-    label: 'Total'
+    label: 'Consumo Original (kW)',
+    class: 'max-w-40'
+  },
+  {
+    key: 'service_grid',
+    label: 'Rede (kW)'
+  },
+  {
+    key: 'service_from_bess',
+    label: 'Descarga BESS (kW)',
+    class: 'max-w-30 px-2'
+  },
+  {
+    key: 'service_to_bess',
+    label: 'Carga BESS (kw)',
+    class: 'max-w-30 px-2'
+  },
+  {
+    key: 'bess_energy',
+    label: 'Armazenado (kWh)',
+    class: 'max-w-30  px-2'
+  },
+  {
+    key: 'bess_soc',
+    label: 'SoC'
   }
 ];
+
+const page = ref(1)
+const pageCount = 50
+
+const rows = computed(() => {
+  return performance.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
+})
+
+const pages = computed(() => {
+  let array = new Array();
+  for (let i = 0; i < pageCount; i++) {
+    array[i] = i;
+  }
+  return array
+})
 
 const { data: selected_client } = await useAsyncData('selected_client', async () => {
   const { data } = await client.from('clients').select().eq('id', route.params.id);
