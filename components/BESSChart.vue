@@ -1,6 +1,6 @@
 <template>
   <div>
-    <highchart :options="options" class="border rounded-lg" />
+    <highchart :options="options" class="border rounded-lg" :update="['options']"/>
   </div>
 </template>
 

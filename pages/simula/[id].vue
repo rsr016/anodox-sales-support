@@ -12,9 +12,7 @@
           <p class="">Ciclos usados no período: {{ performance[performance.length - 1].bess_cycles.toFixed(2) }} ciclos
           </p>
         </div>
-        <div class="flex flex-col justify-center items-center">
-          <!-- <H-UIDatepicker v-model="selectedStart" /> -->
-        </div>
+
 
       </div>
       <div class="col-span-6 max-h-64 container">
@@ -23,7 +21,29 @@
       </div>
 
     </div>
-    <BESSChart :data="performance" v-if="!loading" class="mb-5" />
+    
+    <div class="flex justify-start mx-auto my-5" v-if="!loading">
+      <div class="mx-auto">
+        <UPopover :popper="{ placement: 'bottom-start' }" :ui="{base: 'bg-white z-50',}">
+          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedStart, 'd MMM, yyy')" />
+
+          <template #panel="{ close }">
+            <DatePicker v-model="selectedStart" is-required @close="close" />
+          </template>
+        </UPopover>
+      </div>
+      <div class="mx-auto">
+        <UPopover :popper="{ placement: 'bottom-start' }" :ui="{base: 'bg-white z-50',}">
+          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedEnd, 'd MMM, yyy')" />
+
+          <template #panel="{ close }">
+            <DatePicker v-model="selectedEnd" is-required @close="close" />
+          </template>
+        </UPopover>
+      </div>
+    </div>
+    <BESSChart :data="filtered_performance" v-if="!loading" class="mb-5" />
+
     <div class="container" v-if="!loading">
       <div class="flex justify-end align-middle">
         <p class="my-auto mr-5">Paginas</p>
@@ -96,9 +116,7 @@ const route = useRoute();
 
 
 const selectedStart = ref(null);
-const minDate = ref(null);
 const selectedEnd = ref(null);
-const maxDate = ref(null);
 
 const loading = ref(true);
 
@@ -151,7 +169,11 @@ const page = ref(1)
 const pageCount = 50
 
 const rows = computed(() => {
-  return performance.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
+  return filtered_performance.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
+})
+
+const filtered_performance = computed(() => {
+  return performance.value.filter((p) => new Date(p.timestamp) >= selectedStart.value && new Date(p.timestamp) <= selectedEnd.value)
 })
 
 const pages = computed(() => {
@@ -161,6 +183,25 @@ const pages = computed(() => {
   }
   return array
 })
+
+const minDate = computed(() => {
+  return tstamps_limits.value[0].min_timestamp
+})
+
+const maxDate = computed(() => {
+  return tstamps_limits.value[0].max_timestamp
+})
+
+// const selectedStart = computed({
+//   get() {return minDate.value},
+//   set(newVal) {selectedStart.value = newVal}
+// })
+
+// const selectedEnd = computed({
+//   get() {return addDays(new Date(minDate.value), 7)},
+//   set(newVal) {selectedEnd.value = newVal}
+// })
+
 
 const { data: selected_client } = await useAsyncData('selected_client', async () => {
   const { data } = await client.from('clients').select().eq('id', route.params.id);
@@ -176,14 +217,10 @@ const { data: tstamps_limits } = await useAsyncData('tstamps_limits', async () =
   const { data } = await client.rpc('get_consumption_timestamps', {
     pid: project.value.id
   });
-  minDate.value = Date.parse(data[0].min_timestamp);
-  // selectedStart.value = Date.parse(data[0].min_timestamp);
-  maxDate.value = Date.parse(data[0].max_timestamp);
+  data[0].min_timestamp = Date.parse(data[0].min_timestamp);
+  data[0].max_timestamp = Date.parse(data[0].max_timestamp);
   return data
 })
-selectedStart.value = new Date(minDate.value);
-selectedEnd.value = addDays(new Date(selectedStart.value), 7);
-
 
 const { data: performance } = await useAsyncData('performance', async () => {
   const { data } = await client.from('consumptions').select('timestamp, aggregate, peak, off_peak').eq('project_id', project.value.id);
@@ -253,8 +290,11 @@ async function consumerBESS() {
 }
 
 onMounted(async () => {
-  consumerBESS();
+  
   loading.value = false;
+  selectedStart.value = new Date(minDate.value);
+  selectedEnd.value = addDays(new Date(minDate.value), 7);
+  consumerBESS();
   // console.log(performance.value[270]);
 });
 
