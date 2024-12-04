@@ -3,6 +3,7 @@ import { DatePicker as VCalendarDatePicker } from 'v-calendar'
 // @ts-ignore
 import type { DatePickerDate, DatePickerRangeObject } from 'v-calendar/dist/types/src/use/datePicker'
 import 'v-calendar/dist/style.css'
+const appConfig = useAppConfig()
 
 defineOptions({
   inheritAttrs: false

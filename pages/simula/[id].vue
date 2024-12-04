@@ -1,71 +1,90 @@
 <template>
   <div class="container">
-    <div class="gap-4 grid grid-cols-12 grid-flow-col my-5">
-      <div class="gap-4 grid grid-cols-1 grid-rows-5 grid-flow-col col-span-6">
-        <div class="row-span-2">
-          <p class="font-semibold text-gray-900">{{ selected_client[0].name }}</p>
-          <p>{{ selected_client[0].type }}</p>
-        </div>
-        <div class="row-span-3" v-if="!loading">
-          <p class="">Capacidade: {{ project.energy_capacity }} kWh</p>
-          <p class="">Demanda contratada: {{ project.contracted_demand }} kW</p>
-          <p class="">Ciclos usados no período: {{ performance[performance.length - 1].bess_cycles.toFixed(2) }} ciclos
-          </p>
-        </div>
-
-
+    <UDivider label="Dados" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
+    <div class="grid grid-cols-12 grid-flow-col mt-5 mb-5" v-if="!loading">
+      <div class="col-span-8 container">
+        <p><span class="font-semibold text-gray-900">{{ selected_client[0].name }} </span><span>{{ ' - ' +
+          selected_client[0].type }}</span></p>
+        <p class="mt-3">Parametros:</p>
+        <UTable :rows="dataRows" :columns="dataColumns" :ui="dataTableConfig"></UTable>
       </div>
-      <div class="col-span-6 max-h-64 container">
+      <div class="col-span-4 container">
         <NuxtImg src="/HiPower_ALSES_XL.webp" sizes="200px" class="place-self-center" />
         <p class="font-semibold text-gray-900 place-self-center">Equipamento sugerido: ALSES-2150-1000 </p>
       </div>
-
     </div>
+    <UTable :rows="billRows" :columns="billColumns" :ui="billTableConfig" class='mb-6'>
+      <template #old-data="{ row }">
+        <p class="justify-self-end">
+          {{ row.old == 0 ? '-' : (row.old).toLocaleString() }}
+        </p>
+      </template>
+      <template #new-data="{ row }">
+        <p class="justify-self-end">
+          {{ row.new == 0 ? '-' : (row.new).toLocaleString() }}
+        </p>
+      </template>
+      <template #saving-data="{ row }">
+        <p :class="'justify-self-end ' + (row.saving < 0 ? 'text-green-500' : 'text-red-700')">
+          {{ row.saving == 0 ? '-' : (row.saving).toLocaleString() }}
+        </p>
+      </template>
+    </UTable>
 
-    <br>
-    
-    <div class="flex justify-start mx-auto my-5" v-if="!loading">
-      <div class="mx-auto">
-        <p class="justify-self-left text-base">Início:</p>
-        <UPopover :popper="{ placement: 'bottom-start' }" :ui="{base: 'bg-white z-50',}">
-          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedStart, 'dd/MM/yyy')" :ui="{base: 'border p-3 rounded-md'}"/>
+    <UDivider label="Gráficos" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
+    <div class="flex justify-between mx-auto mb-5" v-if="!loading">
+      <div class="">
+        <p class="justify-self-left text-base text-gray-600">Início:</p>
+        <UPopover :popper="{ placement: 'bottom-start' }" :ui="{ base: 'bg-white z-50', }">
+          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedStart, 'dd/MM/yyy')"
+            :ui="{ base: 'border p-3 rounded-md' }" />
 
           <template #panel="{ close }">
-            <DatePicker v-model="selectedStart" is-required @close="close" :min-date="tstamps_limits[0].min_timestamp" :max-date="selectedEnd" />
+            <DatePicker v-model="selectedStart" is-required @close="close" :min-date="tstamps_limits[0].min_timestamp"
+              :max-date="selectedEnd" />
           </template>
         </UPopover>
-        <p class="justify-self-center text-sm">Mínimo {{format(tstamps_limits[0].min_timestamp, 'dd/MM/yyy')}}</p>
+        <p class="justify-self-center text-gray-500 text-xs">Mínimo {{ format(tstamps_limits[0].min_timestamp,
+          'dd/MM/yyy') }}
+        </p>
       </div>
-      <div class="mx-auto">
-        <p class="justify-self-left text-base">Fim:</p>
-        <UPopover :popper="{ placement: 'bottom-start' }" :ui="{base: 'bg-white z-50',}">
-          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedEnd, 'dd/MM/yyy')" :ui="{base: 'border p-3 rounded-md'}"/>
+      <div class="">
+        <p class="justify-self-left text-base text-gray-600">Fim:</p>
+        <UPopover :popper="{ placement: 'bottom-start' }" :ui="{ base: 'bg-white z-50', }">
+          <UButton icon="i-heroicons-calendar-days-20-solid" :label="format(selectedEnd, 'dd/MM/yyy')"
+            :ui="{ base: 'border p-3 rounded-md' }" />
 
           <template #panel="{ close }">
-            <DatePicker v-model="selectedEnd" is-required @close="close" :min-date="selectedStart" :max-date="tstamps_limits[0].max_timestamp"/>
+            <DatePicker v-model="selectedEnd" is-required @close="close" :min-date="selectedStart"
+              :max-date="tstamps_limits[0].max_timestamp" />
           </template>
         </UPopover>
-        <p class="justify-self-center text-sm">Máximo {{format(tstamps_limits[0].max_timestamp, 'dd/MM/yyy')}}</p>
+        <p class="justify-self-center text-gray-500 text-xs">Máximo {{ format(tstamps_limits[0].max_timestamp,
+          'dd/MM/yyy') }}
+        </p>
       </div>
     </div>
-    <div class="justify-center mx-auto px-0 container">
-      <PowerChart :data="filtered_performance" v-if="!loading" :ui="{base: 'justify-self-center mx-auto mb-5 m-w-0'}" />
+
+    <div class="justify-center mx-auto my-1 px-0 container">
+      <PowerChart :data="filtered_performance" v-if="!loading"
+        :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }" />
     </div>
-    <div class="justify-center mx-auto px-0 container">
-      <BESSChart :data="filtered_performance" v-if="!loading" :ui="{base: 'justify-self-center mx-auto mb-5 m-w-0'}" />
+    <div class="justify-center mx-auto my-1 px-0 container">
+      <BESSChart :data="filtered_performance" v-if="!loading"
+        :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }" />
     </div>
-    <div class="container" v-if="!loading">
-      <div class="flex justify-center align-middle">
+    <div class="mt-8 container" v-if="!loading">
+      <UDivider label="Tabela" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
+      <div class="flex justify-center mt-5 align-middle">
         <p class="sm:flex hidden my-auto mr-5">Paginas</p>
-        <!-- <p class="my-auto">{{ page }} de {{ pages.length }}</p> -->
         <div class="border-gray-200 dark:border-gray-700 py-3.5">
-          <UPagination v-model="page" :page-count="pageCount" :total="performance.length" class="container" :ui="{
+          <UPagination v-model="page" :page-count="pageCount" :total="filtered_performance.length" class="container" :ui="{
             wrapper: 'flex items-center gap-1 btn',
-            base: 'border btn-light',
+            base: 'border',
             rounded: '!rounded-full min-w-[32px] justify-center',
             default: {
               activeButton: {
-                class: 'bg-slate-200'
+                // class: 'bg-slate-200'
               }
             }
           }" />
@@ -124,17 +143,21 @@ const user = useSupabaseUser();
 const client = useSupabaseClient();
 const route = useRoute();
 
-
 const selectedStart = ref(null);
 const selectedEnd = ref(null);
+
+const page = ref(1);
+const pageCount = 50;
 
 const loading = ref(true);
 
 const tableConfig = {
-  base: 'mx-auto justify-self-center',
+  wrapper: 'overflow-x-auto',
+  base: 'mx-auto justify-self-center table-auto',
   divide: 'divide-y divide-gray-300 dark:divide-gray-700',
   td: {
-    base: 'whitespace-nowrap',
+    base: 'whitespace-nowrap p-24',
+    padding: 'px-4 py-4',
   },
   tr: {
     base: 'hover:bg-slate-200',
@@ -176,14 +199,145 @@ const columns = [
   }
 ];
 
-const page = ref(1)
-const pageCount = 50
-
 const rows = computed(() => {
   return filtered_performance.value.slice((page.value - 1) * pageCount, (page.value) * pageCount)
 })
 
+const dataTableConfig = {
+  base: 'justify-self-center my-3',
+  divide: 'divide-y divide-gray-300 dark:divide-gray-700',
+  th: {
+    base: 'hidden'
+  },
+  td: {
+    base: 'justify-self-center',
+    class: 'justify-self-center',
+    padding: 'px-6 py-1',
+    color: 'text-gray-600 dark:text-gray-400',
+  },
+  tr: {
+    base: 'hover:bg-slate-200',
+  }
+}
+
+const dataColumns = [
+  {
+    key: 'parameter',
+    label: 'Parametro',
+  },
+  {
+    key: 'value',
+    label: 'Valor',
+    class: 'max-w-40'
+  }
+];
+
+const dataRows = computed(() => {
+  return [
+    { parameter: 'Capacidade (kWh)', value: project.value.energy_capacity },
+    { parameter: 'Potência (kW)', value: project.value.output_rating },
+    { parameter: 'RTE (%)', value: (100 - project.value.discharge_losses - project.value.charge_losses) },
+    { parameter: 'Max SoC (%)', value: project.value.max_soc },
+    { parameter: 'Min SoC (%)', value: project.value.min_soc },
+    { parameter: 'Ciclos Usados no Período', value: cycles_in_period.value, class: 'bg-green-500/50' },
+    { parameter: 'Máxima Potência Requerida (kW)', value: max_power_in_period.value, class: 'bg-green-500/50' },
+  ]
+})
+
+const cycles_in_period = computed(() => {
+  return filtered_performance.value[filtered_performance.value.length - 1].bess_cycles.toFixed(2)
+})
+
+const max_power_in_period = computed(() => {
+  return Math.max.apply(Math, filtered_performance.value.map((x) => x.service_from_bess))
+})
+
+const billTableConfig = {
+  base: 'justify-self-center place-content-center  my-3',
+  divide: 'divide-y divide-gray-300 dark:divide-gray-700',
+  th: {
+    // base: 'hidden'
+  },
+  td: {
+    base: 'justify-self-center',
+    class: 'justify-self-center',
+    padding: 'px-6 py-1',
+    color: 'text-gray-600 dark:text-gray-400',
+  },
+  tr: {
+    base: 'hover:bg-slate-200',
+  }
+}
+
+const billColumns = [
+  {
+    key: 'item',
+    label: 'Item',
+  },
+  {
+    key: 'old',
+    label: 'Base',
+  },
+  {
+    key: 'new',
+    label: 'Com BESS'
+  },
+  {
+    key: 'saving',
+    label: 'Economia (R$)'
+  }
+];
+
+const billRows = computed(() => {
+  let demand = {
+    item: 'Demanda (kW)',
+    old: Math.max.apply(Math, filtered_performance.value.map((x) => x.aggregate)),
+    new: Math.max.apply(Math, filtered_performance.value.map((x) => x.service_grid)),
+    saving: ''
+  }
+  let surcharge = {
+    item: 'Ultrapassagem (kW)',
+    old: demand.old - project.value.contracted_demand,
+    new: demand.new - project.value.contracted_demand,
+    saving: ''
+  }
+  let offpeaktusd = {
+    item: 'TUSD Fora Ponta (kWh)',
+    old: filtered_performance.value.reduce(function (acc, cur) { return acc + cur.off_peak }, 0) / 4,
+    new: filtered_performance.value.reduce(function (acc, cur) { return acc + (cur.off_peak > 0 ? cur.off_peak + cur.service_to_bess - cur.service_from_bess : 0) }, 0) / 4,
+    saving: ''
+  }
+  let peaktusd = {
+    item: 'TUSD Ponta (kWh)',
+    old: filtered_performance.value.reduce(function (acc, cur) { return acc + cur.peak }, 0) / 4,
+    new: filtered_performance.value.reduce(function (acc, cur) { return acc + (cur.peak > 0 ? cur.peak + cur.service_to_bess - cur.service_from_bess : 0) }, 0) / 4,
+    saving: ''
+  }
+  let energy = {
+    item: 'Energia Adicional (kWh)',
+    old: 0,
+    new: peaktusd.new + offpeaktusd.new - peaktusd.old - offpeaktusd.old,
+    saving: ''
+  }
+  demand.saving = (demand.new - demand.old) * project.value.bill_tar_demand;
+  surcharge.saving = (surcharge.new - surcharge.old) * project.value.bill_tar_surcharge;
+  peaktusd.saving = (peaktusd.new - peaktusd.old) * project.value.bill_tar_peaktusd;
+  offpeaktusd.saving = (offpeaktusd.new - offpeaktusd.old) * project.value.bill_tar_offpeaktusd;
+  energy.saving = (energy.new - energy.old) * project.value.bill_tar_energy;
+
+  let total = {
+    item: 'Total',
+    old: 0,
+    new: 0,
+    saving: demand.saving + surcharge.saving + peaktusd.saving + offpeaktusd.saving + energy.saving
+  }
+
+  return [demand, surcharge, peaktusd, offpeaktusd, energy, total]
+})
+
+
 const filtered_performance = computed(() => {
+  page.value = 1;
   return performance.value.filter((p) => new Date(p.timestamp) >= selectedStart.value && new Date(p.timestamp) <= selectedEnd.value)
 })
 
@@ -301,7 +455,7 @@ async function consumerBESS() {
 }
 
 onMounted(async () => {
-  
+
   loading.value = false;
   selectedStart.value = new Date(minDate.value);
   selectedEnd.value = addDays(new Date(minDate.value), 7);

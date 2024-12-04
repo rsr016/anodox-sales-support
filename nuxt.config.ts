@@ -5,9 +5,9 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/supabase',
     '@nuxt/image',
-    '@nuxtjs/tailwindcss',
+    // '@nuxtjs/tailwindcss',
     'nuxt-time',
-    '@nuxt/icon',
+    // '@nuxt/icon',
     'nuxt-headlessui',
     '@vueuse/nuxt',
     'nuxt-lodash',
