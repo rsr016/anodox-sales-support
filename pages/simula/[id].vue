@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <UDivider label="Dados" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
-    <div class="grid grid-cols-12 grid-flow-col mt-5 mb-5" v-if="!loading">
+    <div class="grid grid-cols-12 grid-flow-col mt-5 mb-6" v-if="!loading">
       <div class="col-span-8 container">
         <p><span class="font-semibold text-gray-900">{{ selected_client[0].name }} </span><span>{{ ' - ' +
           selected_client[0].type }}</span></p>
@@ -13,23 +13,30 @@
         <p class="font-semibold text-gray-900 place-self-center">Equipamento sugerido: ALSES-2150-1000 </p>
       </div>
     </div>
-    <UTable :rows="billRows" :columns="billColumns" :ui="billTableConfig" class='mb-6'>
-      <template #old-data="{ row }">
-        <p class="justify-self-end">
-          {{ row.old == 0 ? '-' : (row.old).toLocaleString() }}
-        </p>
-      </template>
-      <template #new-data="{ row }">
-        <p class="justify-self-end">
-          {{ row.new == 0 ? '-' : (row.new).toLocaleString() }}
-        </p>
-      </template>
-      <template #saving-data="{ row }">
-        <p :class="'justify-self-end ' + (row.saving < 0 ? 'text-green-500' : 'text-red-700')">
-          {{ row.saving == 0 ? '-' : (row.saving).toLocaleString() }}
-        </p>
-      </template>
-    </UTable>
+    <UDivider label="Prévia mudanças na Conta" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
+    <div class='sm:mx-36 mb-6'>
+      <div>
+        <p class="justify-self-center mt-3 text-slate-400">Valores entre {{ format(selectedStart, 'dd/MM/yyy') }} e {{ format(selectedEnd, 'dd/MM/yyy') }}</p>
+      </div>
+      <UTable :rows="billRows" :columns="billColumns" :ui="billTableConfig" class=''>
+        <template #old-data="{ row }">
+          <p class="justify-self-end">
+            {{ row.old == 0 ? '-' : (row.old).toLocaleString() }}
+          </p>
+        </template>
+        <template #new-data="{ row }">
+          <p class="justify-self-end">
+            {{ row.new == 0 ? '-' : (row.new).toLocaleString() }}
+          </p>
+        </template>
+        <template #saving-data="{ row }">
+          <p :class="'justify-self-end ' + (row.saving < 0 ? 'text-green-500' : 'text-red-700')">
+            {{ row.saving == 0 ? '-' : (row.saving).toLocaleString() }}
+          </p>
+        </template>
+      </UTable>
+    </div>
+
 
     <UDivider label="Gráficos" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
     <div class="flex justify-between mx-auto mb-5" v-if="!loading">
@@ -78,16 +85,17 @@
       <div class="flex justify-center mt-5 align-middle">
         <p class="sm:flex hidden my-auto mr-5">Paginas</p>
         <div class="border-gray-200 dark:border-gray-700 py-3.5">
-          <UPagination v-model="page" :page-count="pageCount" :total="filtered_performance.length" class="container" :ui="{
-            wrapper: 'flex items-center gap-1 btn',
-            base: 'border',
-            rounded: '!rounded-full min-w-[32px] justify-center',
-            default: {
-              activeButton: {
-                // class: 'bg-slate-200'
+          <UPagination v-model="page" :page-count="pageCount" :total="filtered_performance.length" class="container"
+            :ui="{
+              wrapper: 'flex items-center gap-1 btn',
+              base: 'border',
+              rounded: '!rounded-full min-w-[32px] justify-center',
+              default: {
+                activeButton: {
+                  // class: 'bg-slate-200'
+                }
               }
-            }
-          }" />
+            }" />
         </div>
       </div>
 
