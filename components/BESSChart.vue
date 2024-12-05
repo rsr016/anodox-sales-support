@@ -19,16 +19,53 @@ const peakBands = computed(function () {
   let bands = new Array();
   for (let i = 0; i < props.data.length; i++) {
     if (i > 0) {
-      if (props.data[i].peak > 0 && props.data[i - 1].peak == 0) {
-        bands.push({ from: Date.parse(props.data[i].timestamp) });
-      } else if (props.data[i].peak == 0 && props.data[i - 1].peak > 0) {
-        bands[bands.length - 1].to = Date.parse(props.data[i - 1].timestamp)
+      let curr = props.data[i];
+      let prev = props.data[i - 1]
+      if (curr.peak > 0 && prev.peak == 0) {
+        bands.push({ from: Date.parse(curr.timestamp) });
+      } else if (curr.peak == 0 && prev.peak > 0) {
+        bands[bands.length - 1].to = Date.parse(prev.timestamp)
         bands[bands.length - 1].color = '#FFEFFF'
       }
     }
   };
   return bands;
 });
+
+
+const peakBands2 = computed(function () {
+  let bands = {
+    attended: new Array(),
+    unnatended: new Array()
+  }
+  for (let i = 0; i < props.data.length; i++) {
+    if (i > 0) {
+      let curr = props.data[i];
+      let prev = props.data[i - 1]
+
+      if (curr.peak > 0 && prev.peak == 0) {
+        if (curr.service_grid - curr.service_from_bess > 0) {
+          bands.unnatended.push({ from: Date.parse(curr.timestamp) })
+        } else {
+          bands.attended.push({ from: Date.parse(curr.timestamp) });
+        }
+
+      } else if (curr.peak == 0 && prev.peak > 0) {
+        if (prev.service_grid - prev.service_from_bess > 0) {
+          bands.unnatended[bands.unnatended.length - 1].to = Date.parse(prev.timestamp);
+          bands.unnatended[bands.unnatended.length - 1].color = '#FFEFFF';
+        } else {
+          bands.attended[bands.attended.length - 1].to = Date.parse(prev.timestamp);
+          bands.attended[bands.attended.length - 1].color = '#d1d1d1';
+        }
+
+      }
+    }
+  };
+  return bands;
+});
+
+
 
 const bessEnergy = computed(() => {
   return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat(p.bess_energy.toFixed(2)) }));
@@ -39,7 +76,7 @@ const bessCharge = computed(() => {
 });
 
 const bessChargeLosses = computed(() => {
-  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((p.bess_net_charge-p.bess_gross_charge).toFixed(2)) }));
+  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((p.bess_net_charge - p.bess_gross_charge).toFixed(2)) }));
 });
 
 const bessDischarge = computed(() => {
@@ -47,7 +84,7 @@ const bessDischarge = computed(() => {
 });
 
 const bessDischargeLosses = computed(() => {
-  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((-p.bess_net_discharge+p.bess_gross_discharge).toFixed(2)) }));
+  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((-p.bess_net_discharge + p.bess_gross_discharge).toFixed(2)) }));
 });
 
 const options = computed(() => {
@@ -104,7 +141,7 @@ const options = computed(() => {
           }
         },
         title: {
-          text: 'Energia kW',
+          text: 'Energia kWh',
           style: {
             color: colors.slate[900]
           }

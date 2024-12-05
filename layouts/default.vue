@@ -5,15 +5,15 @@
                 <NuxtImg src="/anodox-logo-white_1.avif" />
                 <ul class="flex gap-4">
                     <li class="my-auto">
-                        <NuxtLink to="/painel">Painel</NuxtLink>
+                        <NuxtLink to="/painel" class="btn-dark">Painel</NuxtLink>
+                    </li>
+                    <li class="sm:flex hidden my-auto">
+                        <span>{{ user.email }}</span>
                     </li>
                     <li class="my-auto">
                         <button @click="logout" type="button" class="btn-dark self-start">
                             Logout
                         </button>
-                    </li>
-                    <li class="sm:flex hidden my-auto">
-                        <span>{{ user.email }}</span>
                     </li>
                 </ul>
             </nav>
