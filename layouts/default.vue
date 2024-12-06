@@ -1,11 +1,11 @@
 <template>
-    <div>
-        <header class="top-0 z-50 fixed flex flex-no-wrap bg-[--custom-bg-color] shadow-lg py-3 w-full">
+    <div class="top-0 z-50 sticky">
+        <header class="flex flex-no-wrap bg-[--custom-bg-color] shadow-lg py-3 w-full">
             <nav class="flex justify-between mx-auto p-4 container" v-if="user">
                 <NuxtImg src="/anodox-logo-white_1.avif" />
                 <ul class="flex gap-4">
                     <li class="my-auto">
-                        <NuxtLink to="/painel" class="btn-dark">Painel</NuxtLink>
+                        <NuxtLink to="/painel" class="btn-dark">Clientes</NuxtLink>
                     </li>
                     <li class="sm:flex hidden my-auto">
                         <span>{{ user.email }}</span>
@@ -23,7 +23,7 @@
         </header>
     </div>
 
-    <div class="mx-auto mt-24 p-4 container">
+    <div class="mx-auto mt-5 p-4 container">
         <slot />
     </div>
 

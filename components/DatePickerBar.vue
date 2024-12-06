@@ -1,11 +1,11 @@
 <template>
   <div class="flex justify-between mx-auto">
     <div class="content-center gap-1 grid auto-cols-auto auto-rows-min">
-      <div class="content-center col-span-2">
+      <div class="content-center col-span-4">
         <p class="justify-self-left text-base text-gray-600">Início:</p>
       </div>
       <div class="">
-        <UButton icon="i-heroicons-chevron-double-left" :ui="{ base: 'border p-3 rounded-md' }" />
+        <UButton icon="i-heroicons-chevron-double-left" :ui="{ base: 'border p-3 rounded-md' }" @click="goToStart()" />
       </div>
       <div class="">
         <UPopover :popper="{ placement: 'bottom-start' }" :ui="{ base: 'bg-white z-50', }" overlay>
@@ -19,6 +19,12 @@
 
         </UPopover>
         <p class="justify-self-center text-gray-500 text-xs">Mínimo {{ format(new Date(start), 'dd/MM/yyy') }}</p>
+      </div>
+      <div class="">
+        <UButton icon="i-heroicons-chevron-right" label="1 Dia" :ui="{ base: 'border p-3 rounded-md' }" @click="oneDay" />
+      </div>
+      <div>
+        <UButton icon="i-heroicons-chevron-right" label="1 Semana" :ui="{ base: 'border p-3 rounded-md' }" @click="oneWeek" />
       </div>
     </div>
     <div class="content-center gap-1 grid auto-cols-auto auto-rows-min">
@@ -96,6 +102,20 @@ function goToEnd() {
 
 function goToStart() {
   props.modelValue.start = new Date(props.start);
+}
+
+function oneDay() {
+  props.modelValue.end = addDays(props.modelValue.start, 1);
+}
+
+function oneWeek() {
+  props.modelValue.end = addDays(props.modelValue.start, 7);
+}
+
+function addDays(date: Date, days: number) {
+  const newDate = new Date(date);
+  newDate.setDate(date.getDate() + days);
+  return newDate;
 }
 
 function onDayClick(close: any, event: MouseEvent): void {

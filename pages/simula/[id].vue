@@ -4,28 +4,40 @@
       <UProgress animation="carousel" />
     </div>
     <div class="container" v-else>
-      <UDivider label="Dados" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
-      <div class="grid grid-cols-12 grid-flow-col mt-5 mb-6">
-        <div class="col-span-8 container">
-          <p><span class="font-semibold text-gray-900">{{ selected_client[0].name }} </span><span>{{ ' - ' +
-            selected_client[0].type }}</span></p>
-          <p class="mt-3">Parametros:</p>
-          <UTable :rows="dataRows" :columns="dataColumns" :ui="dataTableConfig"></UTable>
-        </div>
-        <div class="col-span-4 container">
-          <NuxtImg src="/HiPower_ALSES_XL.webp" sizes="200px" class="place-self-center" />
-          <p class="font-semibold text-gray-900 place-self-center">Equipamento sugerido: ALSES-2150-1000 </p>
+      <div>
+        <!-- <div class="top-28 z-1000 sticky bg-gray-100"> -->
+        <UDivider label="Dados" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
+        <!-- </div> -->
+        <div class="grid grid-cols-12 grid-flow-col mt-5 mb-6">
+          <div class="col-span-8 container">
+            <p><span class="font-semibold text-gray-900">{{ selected_client[0].name }} </span><span>{{ ' - ' +
+              selected_client[0].type }}</span></p>
+            <p class="mt-3">Parametros:</p>
+            <UTable :rows="dataRows" :columns="dataColumns" :ui="dataTableConfig">
+              <template #value-data="{ row }">
+                <UInput v-model="bess_capacity" v-if="row.parameter == 'Capacidade (kWh)'"/>
+                <div v-else>
+                  {{ row.value }}
+                </div>
+              </template>
+            </UTable>
+          </div>
+          <div class="col-span-4 container">
+            <NuxtImg src="/HiPower_ALSES_XL.webp" sizes="200px" class="place-self-center" />
+            <p class="font-semibold text-gray-900 place-self-center">Equipamento sugerido: ALSES-2150-1000 </p>
+          </div>
         </div>
       </div>
-
       <UDivider label="Prévia mudanças na Conta" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
-      <DatePickerBar v-model="dateRange" :start="new Date(tstamps_limits[0].min_timestamp)"
-        :end="new Date(tstamps_limits[0].max_timestamp)" />
+      <div class="top-28 z-40 sticky bg-gray-50 bg-opacity-80 pb-2">
+        <DatePickerBar v-model="dateRange" :start="new Date(tstamps_limits[0].min_timestamp)"
+          :end="new Date(tstamps_limits[0].max_timestamp)" />
+      </div>
       <ConsumerBillTable :performance="filtered_performance" :project="project" />
 
       <UDivider label="Gráficos" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
-      <DatePickerBar v-model="dateRange" :start="tstamps_limits[0].min_timestamp"
-        :end="tstamps_limits[0].max_timestamp" />
+      <!-- <DatePickerBar v-model="dateRange" :start="tstamps_limits[0].min_timestamp"
+        :end="tstamps_limits[0].max_timestamp" /> -->
       <br>
       <PowerChart :data="filtered_performance" :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }" />
       <br>
@@ -99,6 +111,8 @@ const page = ref(1);
 const pageCount = 50;
 
 const loading = ref(true);
+
+const bess_capacity = ref(null);
 
 const tableConfig = {
   wrapper: 'overflow-x-auto',
@@ -204,7 +218,7 @@ const max_power_in_period = computed(() => {
 
 const filtered_performance = computed(() => {
   page.value = 1;
-  return performance.value.filter((p) => new Date(p.timestamp) >= dateRange.value.start && new Date(p.timestamp) <= dateRange.value.end)
+  return performance.value.filter((p) => new Date(new Date(p.timestamp).toDateString()) >= new Date(new Date(dateRange.value.start).toDateString()) && new Date(new Date(p.timestamp).toDateString()) <= new Date(new Date(dateRange.value.end).toDateString()))
 })
 
 const pages = computed(() => {
@@ -227,6 +241,7 @@ const { data: selected_client } = await useAsyncData('selected_client', async ()
 
 const { data: project } = await useAsyncData('project', async () => {
   const { data } = await client.from('projects').select().eq('client_id', route.params.id);
+  bess_capacity.value = data[0].energy_capacity;
   return data[0]
 })
 
@@ -256,7 +271,7 @@ async function consumerBESS() {
 
     var item = arr[index];
     item.contracted = project.value.contracted_demand;
-    item.bess_capacity = project.value.energy_capacity;
+    item.bess_capacity = bess_capacity.value;
     item.eff_charge = (100 - project.value.charge_losses) / 100;
     item.eff_discharge = (100 - project.value.discharge_losses) / 100;
     item.bess_min = project.value.min_soc * item.bess_capacity / 100;

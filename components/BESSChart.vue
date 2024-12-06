@@ -16,56 +16,53 @@ const props = defineProps({
 });
 
 const peakBands = computed(function () {
+  let peaks = props.data.map((d) => d.peak == 0 ? 0 : (d.service_grid > 0 ? 1 : -1));
+
   let bands = new Array();
-  for (let i = 0; i < props.data.length; i++) {
-    if (i > 0) {
-      let curr = props.data[i];
+
+  for (let i = 0; i < peaks.length; i++) {
+    let curr = props.data[i];
+
+    if (i == 0) {
+      // Register starts, just in case
+      if (peaks[i] == 1) {
+        bands.push({ from: Date.parse(prev.timestamp) });
+      } else if (peaks[i] == -1) {
+        bands.push({ from: Date.parse(prev.timestamp) })
+      }
+    } else {
       let prev = props.data[i - 1]
-      if (curr.peak > 0 && prev.peak == 0) {
-        bands.push({ from: Date.parse(curr.timestamp) });
-      } else if (curr.peak == 0 && prev.peak > 0) {
-        bands[bands.length - 1].to = Date.parse(prev.timestamp)
-        bands[bands.length - 1].color = '#FFEFFF'
+
+      // Register ends
+      if (peaks[i] != 1 && peaks[i - 1] == 1) {
+        bands[bands.length - 1].to = Date.parse(curr.timestamp);
+        bands[bands.length - 1].color = colors.rose[100];
+      } else if (peaks[i] != -1 && peaks[i - 1] == -1) {
+        bands[bands.length - 1].to = Date.parse(curr.timestamp);
+        bands[bands.length - 1].color = colors.green[100];
+      }
+
+      // Register starts
+      if (peaks[i] == 1 && peaks[i - 1] != 1) {
+        bands.push({ from: Date.parse(prev.timestamp) });
+      } else if (peaks[i] == -1 && peaks[i - 1] != -1) {
+        bands.push({ from: Date.parse(prev.timestamp) })
       }
     }
-  };
-  return bands;
-});
 
-
-const peakBands2 = computed(function () {
-  let bands = {
-    attended: new Array(),
-    unnatended: new Array()
+    if (i == peaks.length - 1) {
+      // Check last index to close final band
+      if (peaks[i] == 1) {
+        bands[bands.length - 1].to = Date.parse(curr.timestamp);
+        bands[bands.length - 1].color = colors.rose[100];
+      } else if (peaks[i] == -1) {
+        bands[bands.length - 1].to = Date.parse(curr.timestamp);
+        bands[bands.length - 1].color = colors.green[100];
+      }
+    }
   }
-  for (let i = 0; i < props.data.length; i++) {
-    if (i > 0) {
-      let curr = props.data[i];
-      let prev = props.data[i - 1]
-
-      if (curr.peak > 0 && prev.peak == 0) {
-        if (curr.service_grid - curr.service_from_bess > 0) {
-          bands.unnatended.push({ from: Date.parse(curr.timestamp) })
-        } else {
-          bands.attended.push({ from: Date.parse(curr.timestamp) });
-        }
-
-      } else if (curr.peak == 0 && prev.peak > 0) {
-        if (prev.service_grid - prev.service_from_bess > 0) {
-          bands.unnatended[bands.unnatended.length - 1].to = Date.parse(prev.timestamp);
-          bands.unnatended[bands.unnatended.length - 1].color = '#FFEFFF';
-        } else {
-          bands.attended[bands.attended.length - 1].to = Date.parse(prev.timestamp);
-          bands.attended[bands.attended.length - 1].color = '#d1d1d1';
-        }
-
-      }
-    }
-  };
   return bands;
 });
-
-
 
 const bessEnergy = computed(() => {
   return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat(p.bess_energy.toFixed(2)) }));
@@ -86,6 +83,14 @@ const bessDischarge = computed(() => {
 const bessDischargeLosses = computed(() => {
   return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((-p.bess_net_discharge + p.bess_gross_discharge).toFixed(2)) }));
 });
+
+const minSOC = computed(() => {
+  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((p.bess_min).toFixed(2)) }));
+})
+
+const maxSOC = computed(() => {
+  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((p.bess_max).toFixed(2)) }));
+})
 
 const options = computed(() => {
   return {
@@ -180,7 +185,19 @@ const options = computed(() => {
         marker: {
           enabled: false,
         },
-        color: colors.blue[300]
+        color: colors.blue[500]
+      },
+      {
+        yAxis: 0,
+        name: 'Máximo',
+        id: 'max_energy',
+        type: 'line',
+        data: maxSOC.value,
+        marker: {
+          enabled: false,
+        },
+        dashStyle: 'Dot',
+        color: colors.green[600]
       },
       {
         yAxis: 0,
@@ -191,7 +208,7 @@ const options = computed(() => {
         marker: {
           enabled: false
         },
-        color: colors.green[200]
+        color: colors.green[600]
       },
 
       {
@@ -206,7 +223,19 @@ const options = computed(() => {
         },
         fillOpacity: 0.3,
         color: colors.red[600]
-      }
+      },
+      {
+        yAxis: 0,
+        name: 'Mínimo',
+        id: 'min_energy',
+        type: 'line',
+        data: minSOC.value,
+        marker: {
+          enabled: false,
+        },
+        dashStyle: 'Dot',
+        color: colors.orange[600]
+      },
     ]
   }
 });
