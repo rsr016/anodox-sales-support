@@ -1,5 +1,5 @@
 <template>
-  <div class='sm:mx-36 mb-6'>
+  <div class='lg:mx-36 mb-6'>
     <UTable :rows="rows" :columns="columns" :ui="TableConfig" class=''>
       <template #old-data="{ row }">
         <p class="justify-self-end">

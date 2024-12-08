@@ -1,9 +1,9 @@
 <template>
     <div class="top-0 z-50 sticky">
         <header class="flex flex-no-wrap bg-[--custom-bg-color] shadow-lg py-3 w-full">
-            <nav class="flex justify-between mx-auto p-4 container" v-if="user">
-                <NuxtImg src="/anodox-logo-white_1.avif" />
-                <ul class="flex gap-4">
+            <nav class="flex justify-between mx-auto p-2 md:p-4 container" v-if="user">
+                <NuxtImg src="/anodox-logo-white_1.avif" sizes="3vh md:200px"/>
+                <ul class="flex gap-1 sm:gap-4">
                     <li class="my-auto">
                         <NuxtLink to="/painel" class="btn-dark">Clientes</NuxtLink>
                     </li>
@@ -17,13 +17,13 @@
                     </li>
                 </ul>
             </nav>
-            <nav class="flex justify-left mx-auto p-4 container" v-else>
+            <nav class="flex justify-left mx-auto p-1 sm:p-4 container" v-else>
                 <NuxtImg src="/anodox-logo-white_1.avif" />
             </nav>
         </header>
     </div>
 
-    <div class="mx-auto mt-5 p-4 container">
+    <div class="mx-auto mt-5 p-1 lg:p-4 container">
         <slot />
     </div>
 

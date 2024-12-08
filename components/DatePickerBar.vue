@@ -1,11 +1,14 @@
 <template>
   <div class="flex justify-between mx-auto">
     <div class="content-center gap-1 grid auto-cols-auto auto-rows-min">
-      <div class="content-center col-span-4">
+      <div class="content-center col-span-6">
         <p class="justify-self-left text-base text-gray-600">Início:</p>
       </div>
       <div class="">
-        <UButton icon="i-heroicons-chevron-double-left" :ui="{ base: 'border p-3 rounded-md' }" @click="goToStart()" />
+        <UButton icon="i-heroicons-chevron-double-left" :ui="{ base: 'border p-3 rounded-md' }" @click="setStartDate(start)" />
+      </div>
+      <div class="">
+        <UButton icon="i-heroicons-chevron-left" :ui="{ base: 'border p-3 rounded-md' }" @click="setStartDate(addDays(dateRange.start, -1))" />
       </div>
       <div class="">
         <UPopover :popper="{ placement: 'bottom-start' }" :ui="{ base: 'bg-white z-50', }" overlay>
@@ -21,6 +24,9 @@
         <p class="justify-self-center text-gray-500 text-xs">Mínimo {{ format(new Date(start), 'dd/MM/yyy') }}</p>
       </div>
       <div class="">
+        <UButton icon="i-heroicons-chevron-right" :ui="{ base: 'border p-3 rounded-md' }" @click="setStartDate(addDays(dateRange.start, 1))" />
+      </div>
+      <div class="">
         <UButton icon="i-heroicons-chevron-right" label="1 Dia" :ui="{ base: 'border p-3 rounded-md' }" @click="oneDay" />
       </div>
       <div>
@@ -28,8 +34,11 @@
       </div>
     </div>
     <div class="content-center gap-1 grid auto-cols-auto auto-rows-min">
-      <div class="content-center col-span-2">
+      <div class="content-center col-span-4">
         <p class="justify-self-left text-base text-gray-600">Fim:</p>
+      </div>
+      <div class="">
+        <UButton icon="i-heroicons-chevron-left" :ui="{ base: 'border p-3 rounded-md' }" @click="setEndDate(addDays(dateRange.end, -1))" />
       </div>
       <div class="">
         <UPopover :popper="{ placement: 'bottom-start' }" :ui="{ base: 'bg-white z-50', }" overlay>
@@ -44,7 +53,10 @@
         <p class="justify-self-center text-gray-500 text-xs">Máximo {{ format(new Date(end), 'dd/MM/yyy') }}</p>
       </div>
       <div class="">
-        <UButton icon="i-heroicons-chevron-double-right" :ui="{ base: 'border p-3 rounded-md' }" @click="goToEnd"/>
+        <UButton icon="i-heroicons-chevron-right" :ui="{ base: 'border p-3 rounded-md' }" @click="setEndDate(addDays(dateRange.end, 1))" />
+      </div>
+      <div class="">
+        <UButton icon="i-heroicons-chevron-double-right" :ui="{ base: 'border p-3 rounded-md' }" @click="setEndDate(end)"/>
       </div>
     </div>
   </div>
@@ -96,16 +108,28 @@ const attrs = {
   'first-day-of-week': 2
 }
 
-function goToEnd() {
-  props.modelValue.end = new Date(props.end);
-}
-
-function goToStart() {
-  props.modelValue.start = new Date(props.start);
-}
-
 function oneDay() {
   props.modelValue.end = addDays(props.modelValue.start, 1);
+}
+
+function setStartDate(date: Date) {
+  if (date < new Date(props.start)) {
+    props.modelValue.start = new Date(props.start);
+  } else if (date > props.modelValue.end) {
+    props.modelValue.start = addDays(new Date(props.modelValue.end),-1);
+  } else {
+    props.modelValue.start = date;
+  }
+}
+
+function setEndDate(date: Date) {
+  if (date > new Date(props.end)) {
+    props.modelValue.end = new Date(props.end);
+  } else if (date < props.modelValue.start) {
+    props.modelValue.end = addDays(new Date(props.modelValue.start), 1);
+  } else {
+    props.modelValue.end = date;
+  }
 }
 
 function oneWeek() {
