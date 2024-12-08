@@ -4,10 +4,9 @@
       <UProgress animation="carousel" />
     </div>
     <div class="container" v-else>
-      <div>
-        <UDivider label="Dados" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
-        <ConsumerProjectData v-model="bess_capacity" :data="filtered_performance" :client="selected_client[0]" :project="project" />
-      </div>
+      <UDivider label="Dados" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
+      <ConsumerProjectData v-model="bess_capacity" :data="filtered_performance" :client="selected_client[0]" :project="project" />
+      
       <UDivider label="Prévia mudanças na Conta" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
       <div class="top-28 z-40 sticky bg-gray-50 bg-opacity-80 pb-2">
         <DatePickerBar v-model="dateRange" :start="new Date(tstamps_limits[0].min_timestamp)"
@@ -20,8 +19,8 @@
       <PowerChart :data="filtered_performance" :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }" />
       <br>
       <BESSChart :data="filtered_performance" :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }" />
-
       <br>
+
       <UDivider label="Tabela" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
       <BESSTable v-model="page" :filtered_performance="filtered_performance" />
     </div>
@@ -150,6 +149,9 @@ onMounted(async () => {
     end: addDays(new Date(minDate.value), 7)
   }
   await consumerBESS();
+  if (bess_capacity.value == null) {
+    bess_capacity.value = project.value.energy_capacity;
+  }
   loading.value = false;
 });
 
