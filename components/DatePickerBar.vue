@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between mx-auto">
+  <div class="flex flex-wrap justify-between mx-auto">
     <div class="content-center gap-1 grid auto-cols-auto auto-rows-min">
       <div class="content-center col-span-6">
         <p class="justify-self-left text-base text-gray-600">Início:</p>
@@ -26,13 +26,14 @@
       <div class="">
         <UButton icon="i-heroicons-chevron-right" :ui="{ base: 'border p-3 rounded-md' }" @click="setStartDate(addDays(dateRange.start, 1))" />
       </div>
-      <div class="">
+      <div class="collapse md:visible">
         <UButton icon="i-heroicons-chevron-right" label="1 Dia" :ui="{ base: 'border p-3 rounded-md' }" @click="oneDay" />
       </div>
-      <div>
+      <div class="collapse md:visible">
         <UButton icon="i-heroicons-chevron-right" label="1 Semana" :ui="{ base: 'border p-3 rounded-md' }" @click="oneWeek" />
       </div>
     </div>
+
     <div class="content-center gap-1 grid auto-cols-auto auto-rows-min">
       <div class="content-center col-span-4">
         <p class="justify-self-left text-base text-gray-600">Fim:</p>
