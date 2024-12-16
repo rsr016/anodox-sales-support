@@ -13,6 +13,7 @@
     "@morev/vue-transitions": "^3.0.5",
     "@nuxt/image": "^1.8.1",
     "@nuxt/ui": "^2.19.2",
+    "@pinia/nuxt": "^0.9.0",
     "@popperjs/core": "^2.11.8",
     "@tailwindcss/forms": "^0.5.9",
     "@tanstack/vue-table": "^8.20.5",
@@ -25,17 +26,17 @@
     "nuxt": "^3.14.1592",
     "nuxt-headlessui": "^1.2.0",
     "nuxt-highcharts": "^3.1.1",
+    "nuxt-icon": "^1.0.0-beta.7",
     "nuxt-lodash": "^2.5.3",
     "nuxt-plotly": "^1.0.14",
     "nuxt-time": "^1.0.3",
+    "pinia": "^2.3.0",
     "tailwind-merge": "^2.5.5",
     "tailwind-scrollbar": "^3.1.0",
     "v-calendar": "^3.1.2",
     "vue": "latest",
     "vue-chartjs": "^5.3.2",
-    "vue-router": "latest",
-
-    "nuxt-icon": "^1.0.0-beta.7"
+    "vue-router": "latest"
   },
   "devDependencies": {
     "@nuxt/icon": "^1.9.0",

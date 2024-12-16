@@ -25,7 +25,8 @@ export default defineNuxtConfig({
     '@morev/vue-transitions',
     'nuxt-plotly',
     'nuxt-highcharts',
-    '@nuxt/ui'
+    '@nuxt/ui',
+    '@pinia/nuxt'
   ],
   plugins: [
     // Ensure this runs on client side only

@@ -2,8 +2,8 @@
   <div>
     <div class="grid grid-cols-12 grid-flow-col mt-5 mb-6">
       <div class="col-span-12 md:col-span-8 container">
-        <p><span class="font-semibold text-gray-900">{{ client.name }} </span><span>{{ ' - ' +
-          client.type }}</span></p>
+        <p><span class="font-semibold text-gray-900">{{ project.name }} </span><span>{{ ' - ' +
+          project.type }}</span></p>
         <p class="mt-3">Parametros:</p>
         <UTable :rows="dataRows" :columns="dataColumns" :ui="dataTableConfig">
           <template #value-data="{ row }">
@@ -30,10 +30,6 @@ const props = defineProps({
     default: null
   },
   data: {
-    type: Object,
-    required: false,
-  },
-  client: {
     type: Object,
     required: false,
   },
