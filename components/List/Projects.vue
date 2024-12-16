@@ -1,18 +1,19 @@
 <template>
-  <div class="border-b border-gray-200 pb-4">
+  <div class="border-b border-gray-200">
     <div class="flex justify-between items-center">
       <div>
         <p class="font-bold text-gray-900">{{ client.name }}</p>
         <p class="text-gray-500">{{ client.type }}</p>
       </div>
-      <div class="text-right">
+      <div class="flex text-right justify-between">
         <NuxtTime
           :datetime="client.created_at"
           year="numeric"
           month="long"
           day="numeric"
+          class="mx-3 mt-2"
         />
-        <NuxtLink class="btn-light mt-2" :to="`/editar/cliente/${client.id}`"
+        <NuxtLink class="btn-light mx-3" :to="`/editar/cliente/${client.id}`"
           >Editar</NuxtLink
         >
       </div>
@@ -36,11 +37,11 @@
           ></path>
         </svg>
       </button>
-      <div v-if="showProjects" class="mt-4 space-y-4">
+      <div v-if="showProjects" class="mt-4 space-y-4 bg-slate-100 p-4">
         <div
           v-for="p in client.projects"
           :key="p.id"
-          class="flex justify-between items-center border-t border-gray-200 pt-4"
+          class="flex justify-between items-center align-center pt-4"
         >
           <div>
             <NuxtTime
@@ -49,7 +50,7 @@
               month="long"
               day="numeric"
             />
-            <NuxtLink class="btn-light mt-2" :to="`/editar/projeto/${p.id}`"
+            <NuxtLink class="btn-light mt-2 mx-3" :to="`/editar/projeto/${p.id}`"
               >Configurar</NuxtLink
             >
           </div>
@@ -64,7 +65,7 @@
         </div>
       </div>
     </div>
-    <div v-else  class="mt-4 space-y-4">
+    <div v-else  class="my-4 space-y-4">
       <span class="text-gray-500">Sem projetos registrados</span>
     </div>
   </div>
