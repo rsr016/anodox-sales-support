@@ -38,7 +38,41 @@
         </p>
       </template>
       <template #flow_bess-data="{ row }">
-        <div class="grid grid-cols-3">
+        <div class="grid grid-cols-3 grid-rows-3 grid-flow-col auto-cols-min my-3">
+          <p :class="'justify-between flex'">
+            <span>BESS:</span>
+            <span :class="'text-' + flowColor(row) + '-400'">{{
+              row.service_to_bess - row.service_from_bess == 0
+                ? "-"
+                : (row.service_to_bess - row.service_from_bess).toFixed(2)
+            }}</span>
+          </p>
+          <UIcon
+            v-if="flowColor(row) == 'green'"
+            name="i-heroicons-arrow-down"
+            :class="'w-5 h-5 mx-auto text-' + flowColor(row) + '-400'"
+          />
+          <p class="justify-between row-start-3 flex">
+            <span>Consumo:</span>
+            <span class="ml-3">{{ row.aggregate.toFixed(2) }}</span>
+          </p>
+          <UIcon
+            v-if="flowColor(row) == 'red'"
+            name="i-heroicons-arrow-turn-up-left"
+            :class="'w-5 h-5 mx-auto text-' + flowColor(row) + '-400'"
+          />
+          <UIcon
+            v-if="row.aggregate > 0"
+            name="i-heroicons-arrow-turn-down-left"
+            :class="'w-5 h-5 mx-auto row-start-3'"
+          />
+          <p :class="'justify-between flex-shrink row-start-2 col-start-3'">
+            <span class='mr-2'>Rede: </span>
+            <span>{{ row.service_grid.toFixed(2) }}</span>
+          </p>
+        </div>
+
+        <!-- <div class="grid grid-cols-3">
           <UIcon v-if="flowColor(row) == 'green'" name="i-heroicons-arrow-left" :class="'w-5 h-5 mx-auto text-' + flowColor(row) + '-400'" />
           <p :class="'col-start-2 col-span-1 justify-self-end text-' + flowColor(row) + '-400'">
             {{
@@ -48,7 +82,7 @@
             }}
           </p>
           <UIcon v-if="flowColor(row) == 'red'" name="i-heroicons-arrow-left" :class="'w-5 h-5 mx-auto text-' + flowColor(row) + '-400'" />
-        </div>
+        </div> -->
       </template>
       <template #bess_soc-data="{ row }">
         <UMeter :color="barColor(row)" :value="row.bess_soc * 100" indicator>
@@ -132,20 +166,20 @@ const columns = [
     key: "timestamp",
     label: "Hora",
   },
-  {
-    key: "aggregate",
-    label: "Consumo (kW)",
-    class: "max-w-40",
-  },
+  // {
+  //   key: "aggregate",
+  //   label: "Consumo (kW)",
+  //   class: "max-w-40",
+  // },
   {
     key: "flow_bess",
-    label: "Fluxo BESS (kw)",
+    label: "Fluxo Energia (kw)",
     class: "max-w-30 px-2",
   },
-  {
-    key: "service_grid",
-    label: "Rede (kW)",
-  },
+  // {
+  //   key: "service_grid",
+  //   label: "Rede (kW)",
+  // },
   {
     key: "bess_soc",
     label: "SoC",
