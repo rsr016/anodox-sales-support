@@ -1,6 +1,7 @@
 <template>
   <div>
-    {{ project?.value }}
+    Editar projeto
+    {{ client }}
   </div>
 </template>
 
@@ -9,14 +10,24 @@ definePageMeta({
   middleware: ["auth"],
 })
 
-const loading = ref(true);
 const route = useRoute();
-const client = useSupabaseClient();
+const supabase = useSupabaseClient();
+const router = useRouter();
 
-const { data: project } = await useAsyncData('project', async () => {
-  const { data } = await client.from('projects').select().eq('id', route.params.id);
-  return data[0]
-})
+const { data: client } = await useAsyncData("client", async () => {
+  const { data } = await supabase
+    .from("clients")
+    .select("*, projects(*)")
+    .eq("id", route.params.id)
+    .single();
+  return data;
+});
+
+onMounted(async () => {
+  if (!client.value) {
+    router.push('/painel');
+  }
+});
 
 </script>
 

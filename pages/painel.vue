@@ -1,10 +1,42 @@
 <template>
-  <div class="mx-6">
-    <ul role="list" class=" container">
-      <li class="container gap-x-6 py-5" v-for="c in list_data">
-        <ListProjects :client="c" />
-      </li>
-    </ul>
+  <div class="container mx-6">
+    <div
+      class="flex justify-between px-3 py-3.5 border-b border-gray-200 dark:border-gray-700"
+    >
+      <UInput v-model="q" placeholder="Buscar cliente..." />
+      <CreateClient />
+    </div>
+
+    <UTable v-model:expand="expand" :rows="filteredRows" :columns="columns" :ui="{base: 'table-auto'}">
+      <template #expand="{ row }">
+        <div class="bg-slate-100">
+           <ListProjects :projects="row.projects" />
+        </div>
+      </template>
+      <template #name-data="{ row }">
+        <p class="font-bold text-gray-900">{{ row.name }}</p>
+        <p class="text-gray-500">{{ row.type }}</p>
+      </template>
+      <template #created_at-data="{ row }">
+        <NuxtTime
+          :datetime="row.created_at"
+          year="numeric"
+          month="long"
+          day="numeric"
+        />
+      </template>
+      <template #projects-data="{ row }">
+        {{ row.projects.length > 0 ? row.projects.length : "-" }}
+      </template>
+      <template #action-data="{ row }">
+        <UButton
+          @click="router.push(`/editar/cliente/${row.id}`)"
+          class=""
+        >
+          Editar Cliente
+        </UButton>
+      </template>
+    </UTable>
   </div>
 </template>
 
@@ -13,14 +45,60 @@ definePageMeta({
   middleware: ["auth"],
 });
 
+const router = useRouter();
 const client = useSupabaseClient();
 
 const { data: list_data } = await useAsyncData("list_data", async () => {
-  const { data } = await client.from("clients").select('*, projects(*)');
+  const { data } = await client.from("clients").select("*, projects(*)");
   return data;
 });
 
+const q = ref(null);
 
+const expand = ref({
+  openedRows: [null],
+  row: {},
+});
+
+const filteredRows = computed(() => {
+  let list = list_data.value;
+
+  list.forEach((client) => {
+    if (client.projects.length === 0) {
+      client.disabledExpand = true;
+    }
+  });
+
+  if (!q.value) {
+    return list;
+  }
+
+  return list.filter((client) => {
+    return Object.values(client).some((value) => {
+      return String(value).toLowerCase().includes(q.value.toLowerCase());
+    });
+  });
+});
+
+const columns = [
+  {
+    key: "name",
+    label: "Cliente",
+    class: "text-bold",
+  },
+  {
+    key: "created_at",
+    label: "Data",
+  },
+  {
+    key: "projects",
+    label: "Projetos",
+  },
+  {
+    key: "action",
+    label: "Ação",
+  },
+];
 </script>
 
 <style></style>

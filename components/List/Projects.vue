@@ -1,91 +1,48 @@
 <template>
-  <div class="border-b border-gray-200">
-    <div class="flex justify-between items-center">
+  <div class="container flex-col items-center text-sm">
+    <div
+      v-for="project in projects"
+      :key="project.id"
+      class="flex justify-between px-3 py-3.5 align-middle"
+    >
+      <p class="text-gray-600 align-middle">{{ project.type }}</p>
+      <p class="text-gray-500 align-middle">
+        {{ format(new Date(project.created_at), "d-MMM-yy") }}
+      </p>
+      <p class="text-gray-500 align-middle">
+        {{ project.energy_capacity }} kWh / {{ project.output_rating }} kW
+      </p>
       <div>
-        <p class="font-bold text-gray-900">{{ client.name }}</p>
-        <p class="text-gray-500">{{ client.type }}</p>
-      </div>
-      <div class="flex text-right justify-between">
-        <NuxtTime
-          :datetime="client.created_at"
-          year="numeric"
-          month="long"
-          day="numeric"
-          class="mx-3 mt-2"
-        />
-        <NuxtLink class="btn-light mx-3" :to="`/editar/cliente/${client.id}`"
-          >Editar</NuxtLink
+        <button class="btn-light mx-1" @click="router.push('/simula/' + project.id)">
+          Simular
+        </button>
+        <button
+          class="btn-light mx-1"
+          @click="router.push('/relatorio/' + project.id)"
         >
-      </div>
-    </div>
-    <div class="mt-4" v-if="client.projects.length > 0">
-      <button @click="toggleProjects" class="flex items-center text-gray-500">
-        <span>Projetos</span>
-        <svg
-          :class="{ 'transform rotate-180': showProjects }"
-          class="w-5 h-5 ml-2 transition-transform"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
+          Relatório
+        </button>
+        <button
+          class="btn-light mx-1"
+          @click="router.push('/editar/projeto/' + project.id)"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M19 9l-7 7-7-7"
-          ></path>
-        </svg>
-      </button>
-      <div v-if="showProjects" class="mt-4 space-y-4 bg-slate-100 p-4">
-        <div
-          v-for="p in client.projects"
-          :key="p.id"
-          class="flex justify-between items-center align-center pt-4"
-        >
-          <div>
-            <NuxtTime
-              :datetime="p.created_at"
-              year="numeric"
-              month="long"
-              day="numeric"
-            />
-            <NuxtLink class="btn-light mt-2 mx-3" :to="`/editar/projeto/${p.id}`"
-              >Configurar</NuxtLink
-            >
-          </div>
-          <div class="flex space-x-2">
-            <NuxtLink class="btn-light" :to="`/simula/${p.id}`"
-              >Simulação</NuxtLink
-            >
-            <NuxtLink class="btn-light" :to="`/relatorio/${p.id}`"
-              >Relatório</NuxtLink
-            >
-          </div>
-        </div>
+          Editar
+        </button>
       </div>
-    </div>
-    <div v-else  class="my-4 space-y-4">
-      <span class="text-gray-500">Sem projetos registrados</span>
     </div>
   </div>
 </template>
 
-<style></style>
-
 <script setup>
+import { format } from "date-fns";
+const router = useRouter();
+
 const props = defineProps({
-  client: {
-    type: Object,
+  projects: {
+    type: Array,
     required: false,
   },
 });
-
-import { ref } from "vue";
-
-const showProjects = ref(false);
-
-function toggleProjects() {
-  showProjects.value = !showProjects.value;
-}
 </script>
+
+<style></style>

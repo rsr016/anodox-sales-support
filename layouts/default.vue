@@ -26,6 +26,7 @@
     <div class="mx-auto mt-5 p-1 lg:p-4 container">
         <slot />
     </div>
+    <UNotifications />
 
 </template>
 
