@@ -52,7 +52,7 @@ function addDays(date, days) {
 const { data: project_data } = await useAsyncData("project_data", async () => {
   const { data } = await client
     .from("projects")
-    .select("*, consumptions(*), ...clients!inner(*)")
+    .select("*, consumptions(*), client:clients!inner(*)")
     .eq("id", route.params.id)
     .single();
   return data;
