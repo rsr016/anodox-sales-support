@@ -42,13 +42,18 @@
     >
       <div class="flex col-span-3 justify-between">
         <p>Dados Conta</p>
-        <!-- <UButton type="submit" :disabled="!isChanged" class="btn-dark disabled:bg-slate-100">Salvar</UButton> -->
       </div>
       <div v-for="(p, i) in bill_form" :key="i" class="mb-4">
         <label class="block text-gray-700">{{ p.label }}</label>
         <UInput v-model="form[p.model]" />
       </div>
     </form>
+
+    <UDivider
+      label="Dados simulação"
+      :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
+    />
+    <CreateData :project_data="project_data" />
   </div>
 </template>
 
@@ -144,15 +149,6 @@ const { data: project_data } = await useAsyncData("project_data", async () => {
   return data;
 });
 
-onMounted(() => {
-  for (let formItem of project_form) {
-    form.value[formItem.model] = project_data.value[formItem.model];
-  }
-  for (let formItem of bill_form) {
-    form.value[formItem.model] = project_data.value[formItem.model];
-  }
-});
-
 const isChanged = computed(() => {
   let changed = false;
   for (let property in form.value) {
@@ -184,6 +180,15 @@ async function saveProject() {
     }
   }
 }
+
+onMounted(() => {
+  for (let formItem of project_form) {
+    form.value[formItem.model] = project_data.value[formItem.model];
+  }
+  for (let formItem of bill_form) {
+    form.value[formItem.model] = project_data.value[formItem.model];
+  }
+});
 </script>
 
 <style>

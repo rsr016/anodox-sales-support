@@ -10,7 +10,8 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' },
         { rel: 'manifest', href: '/site.webmanifest' },
       ]
-    }
+    },
+    pageTransition: { name: 'page', mode: 'out-in' }
   },
   devtools: { enabled: true },
   modules: [

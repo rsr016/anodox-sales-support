@@ -7,25 +7,57 @@
       <UProgress animation="carousel" />
     </div>
     <div class="container" v-else>
-      <UDivider label="Dados" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
-      <ConsumerProjectData v-model="bess_capacity" :data="filtered_performance" :project="project_info" />
-      
-      <UDivider label="Prévia mudanças na Conta" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
+      <UDivider
+        label="Dados"
+        :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
+      />
+      <ConsumerProjectData
+        v-model="bess_capacity"
+        :data="filtered_performance"
+        :project="project_info"
+      />
+
+      <UDivider
+        label="Prévia mudanças na Conta"
+        :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
+      />
       <div class="top-28 z-40 sticky bg-gray-50 bg-opacity-80 pb-2">
-        <DatePickerBar v-model="dateRange" :start="dateRangeLimits.min"
-          :end="dateRangeLimits.max" />
+        <DatePickerBar
+          v-model="dateRange"
+          :start="dateRangeLimits.min"
+          :end="dateRangeLimits.max"
+        />
       </div>
-      <ConsumerBillTable :performance="filtered_performance" :project="project_info" />
+      <ConsumerBillTable
+        :performance="filtered_performance"
+        :project="project_info"
+      />
 
-      <UDivider label="Gráficos" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
-      <br>
-      <PowerChart :data="filtered_performance" :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }" />
-      <br>
-      <BESSChart :data="filtered_performance" :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }" />
-      <br>
+      <UDivider
+        label="Gráficos"
+        :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
+      />
+      <br />
+      <PowerChart
+        :data="filtered_performance"
+        :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }"
+      />
+      <br />
+      <BESSChart
+        :data="filtered_performance"
+        :ui="{ base: 'justify-self-center mx-auto mb-5 m-w-0' }"
+      />
+      <br />
 
-      <UDivider label="Tabela" :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }" />
-      <BESSTable v-model="page" :filtered_performance="filtered_performance" :project="project_info" />
+      <UDivider
+        label="Tabela"
+        :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
+      />
+      <BESSTable
+        v-model="page"
+        :filtered_performance="filtered_performance"
+        :project="project_info"
+      />
     </div>
   </div>
 </template>
@@ -42,6 +74,11 @@ const route = useRoute();
 const dateRange = ref({ start: null, end: null });
 const page = ref(1);
 const loading = ref(true);
+
+onBeforeRouteLeave((to, from) => {
+  // Hard fix for components breaking when navigating to other pages
+  loading.value = true;
+});
 
 function addDays(date, days) {
   const newDate = new Date(date);

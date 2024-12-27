@@ -1,0 +1,140 @@
+<template>
+  <div class="container mt-4">
+    <form
+      @submit.prevent="handleFileUpload"
+      class="flex gap-3 content-stretch justify-center"
+    >
+      <UInput type="file" accept=".csv" @change="handleFileChange" />
+      <UButton type="submit" :disabled="!file">Upload</UButton>
+    </form>
+    <UModal v-model="selectingColumns">
+      <div class="">
+        <UTable :rows="rows" :columns="columns">
+          <template #mapping-data="{ row }">
+            <USelect
+              v-model="row.mapping"
+              :options="columnMappingSelection"
+              option-attribute="name"
+              placeholder="Selecionar coluna..."
+            />
+          </template>
+          <template #preview-data="{ row }">
+            <pre>{{ row.mapping ? previewData(row.mapping) : "-" }}</pre>
+          </template>
+        </UTable>
+        <div class="flex justify-between mx-3 my-3">
+          <UButton @click="selectingColumns = false" color="red"
+            >Cancelar</UButton
+          >
+          <UButton @click="uploadParsed" color="green"
+            >Upload/Substituir</UButton
+          >
+        </div>
+      </div>
+    </UModal>
+    <div>
+      <UTable :rows="props.project_data.conusmptions" :columns="projectColumns">
+        
+      </UTable>
+    </div>
+  </div>
+</template>
+
+<script setup>
+const file = ref(null);
+const parsedFile = ref(null);
+const selectingColumns = ref(false);
+
+const props = defineProps({
+  project_data: {
+    type: Object,
+    required: true,
+  },
+});
+
+const rows = ref([
+  { name: "Hora", value: "timestamp", mapping: null, preview: null },
+  { name: "Total (kW)", value: "aggregate", mapping: null, preview: null },
+  { name: "Ponta (kW)", value: "peak", mapping: null, preview: null },
+  { name: "Fora Ponta (kW)", value: "off_peak", mapping: null, preview: null },
+]);
+const columns = [
+  {
+    key: "name",
+    label: "Coluna",
+  },
+  {
+    key: "mapping",
+    label: "Mapeamento",
+  },
+  {
+    key: "preview",
+    label: "Prévia",
+  },
+];
+
+const projectRows = computed(() => {
+  return props.project_data.conusmptions;
+});
+
+const projectColumns = [
+  {
+    key: "timestamp",
+    label: "Hora",
+  },
+  {
+    key: "aggregate",
+    label: "Total (kW)",
+  },
+  {
+    key: "peak",
+    label: "Ponta (kW)",
+  },
+  {
+    key: "off_peak",
+    label: "Fora Ponta (kW)",
+  },
+];
+
+function previewData(key) {
+  return parsedFile.value?.data.slice(0, 3).map((r) => r[key]);
+}
+
+const columnMappingSelection = computed(() => {
+  return parsedFile.value?.meta.fields.map((f) => ({
+    name: f,
+    value: f,
+    disabled: rows.value.reduce((acc, row) => acc || row.mapping === f, false),
+  }));
+});
+
+const handleFileChange = (event) => {
+  if (event.length > 0) {
+    file.value = event[0];
+  } else {
+    file.value = null;
+  }
+};
+
+const handleFileUpload = async () => {
+  try {
+    const csvData = await parseCSV(file.value);
+    parsedFile.value = csvData;
+    selectingColumns.value = true;
+    // await uploadDataToSupabase(csvData);
+  } catch (error) {
+    console.error("Error parsing CSV or uploading data:", error);
+    alert("There was an error processing your upload.");
+  }
+};
+
+const uploadParsed = async () => {
+  alert("Uploading data to Supabase...");
+  selectingColumns.value = false;
+};
+const uploadCancel = async () => {
+  selectingColumns.value = false;
+};
+</script>
+
+<style></style>
