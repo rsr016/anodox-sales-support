@@ -7,10 +7,15 @@
       <CreateClient />
     </div>
 
-    <UTable v-model:expand="expand" :rows="filteredRows" :columns="columns" :ui="{base: 'table-auto'}">
+    <UTable
+      v-model:expand="expand"
+      :rows="filteredRows"
+      :columns="columns"
+      :ui="{ base: 'table-auto' }"
+    >
       <template #expand="{ row }">
         <div class="bg-slate-100">
-           <ListProjects :projects="row.projects" />
+          <ListProjects :projects="row.projects" />
         </div>
       </template>
       <template #name-data="{ row }">
@@ -26,15 +31,24 @@
         />
       </template>
       <template #projects-data="{ row }">
-        {{ row.projects.length > 0 ? row.projects.length : "-" }}
+        <span class="my-auto">
+          {{ row.projects.length > 0 ? row.projects.length : "-" }}
+        </span>
       </template>
       <template #action-data="{ row }">
-        <UButton
-          @click="router.push(`/editar/cliente/${row.id}`)"
-          class=""
-        >
-          Editar Cliente
-        </UButton>
+        <div class="grid grid-flow-col shrink align-middle justify-between">
+          <UButton
+            icon="i-heroicons-document-plus"
+            :label="'Novo Projeto'"
+            @click="router.push(`/editar/projeto/novo_${row.id}`)"
+            class=""
+          />
+          <UButton
+            @click="router.push(`/editar/cliente/${row.id}`)"
+            icon="i-heroicons-pencil-square"
+            :label="'Editar Cliente'"
+          />
+        </div>
       </template>
     </UTable>
   </div>

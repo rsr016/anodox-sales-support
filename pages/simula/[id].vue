@@ -1,11 +1,6 @@
 <template>
   <div>
-    <div
-      class="items-center space-x-4 space-y-24 mt-24 container"
-      v-if="loading"
-    >
-      <UProgress animation="carousel" />
-    </div>
+    <LoadingIndicator v-if="loading" />
     <div class="container" v-else>
       <UDivider
         label="Dados"
@@ -89,7 +84,7 @@ function addDays(date, days) {
 const { data: project_data } = await useAsyncData("project_data", async () => {
   const { data } = await client
     .from("projects")
-    .select("*, consumptions(*), client:clients!inner(*)")
+    .select("*, powerprofile(*), client:clients!inner(*)")
     .eq("id", route.params.id)
     .single();
   return data;
@@ -97,7 +92,7 @@ const { data: project_data } = await useAsyncData("project_data", async () => {
 
 const dateRangeLimits = computed(() => {
   if (!project_data?.value) return { min: null, max: null };
-  const timestamps = project_data.value.consumptions.map((consumption) =>
+  const timestamps = project_data.value.powerprofile.map((consumption) =>
     Date.parse(consumption.timestamp)
   );
   const minTimestamp = Math.min(...timestamps);
@@ -110,13 +105,13 @@ const dateRangeLimits = computed(() => {
 
 const project_info = computed(() => {
   if (!project_data?.value) return null;
-  const { consumptions, ...rest } = project_data.value;
+  const { powerprofile, ...rest } = project_data.value;
   return rest;
 });
 
 const filtered_performance = computed(() => {
   page.value = 1;
-  let perf = project_data.value.consumptions.filter(
+  let perf = project_data.value.powerprofile.filter(
     (p) =>
       new Date(new Date(p.timestamp).toDateString()) >=
         new Date(new Date(dateRange.value.start).toDateString()) &&
@@ -145,7 +140,7 @@ onMounted(async () => {
 });
 
 async function consumerBESS() {
-  project_data.value.consumptions.forEach((item, index, arr) => {
+  project_data.value.powerprofile.forEach((item, index, arr) => {
     var item = arr[index];
     item.contracted = project_data.value.contracted_demand;
     item.bess_capacity = project_data.value.energy_capacity;

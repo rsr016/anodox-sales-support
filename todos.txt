@@ -1,0 +1,6 @@
+Verificar update de dados de performance
+
+Pagina de editar cliente e listar projetos dele (para depois editar também)
+
+Criar Bloco botões no navbar para edição/simulação (projeto), e edição/projetos (cliente)
+Adciionar quantitativos na economia pagina simular

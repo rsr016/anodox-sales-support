@@ -33,9 +33,47 @@
       </div>
     </UModal>
     <div>
-      <UTable :rows="props.project_data.conusmptions" :columns="projectColumns">
-        
+      <UPagination
+        v-model="page"
+        :page-count="pageCount"
+        :total="props.project_data.powerprofile.length"
+        class="container"
+        :ui="{
+          wrapper: 'flex items-center gap-1 justify-center',
+          base: 'mt-5',
+          rounded: '!rounded-full min-w-[32px] justify-center',
+          default: {
+            activeButton: {},
+          },
+        }"
+      />
+      <UTable :rows="projectRows" :columns="projectColumns" :ui="tableConfig">
+        <template #timestamp-data="{ row }">
+          <NuxtTime
+            :datetime="row.timestamp"
+            year="numeric"
+            month="numeric"
+            day="numeric"
+            hour="numeric"
+            minute="numeric"
+            class="mx-2"
+          />
+        </template>
       </UTable>
+      <UPagination
+        v-model="page"
+        :page-count="pageCount"
+        :total="props.project_data.powerprofile.length"
+        class="container"
+        :ui="{
+          wrapper: 'flex items-center gap-1 justify-center',
+          base: 'mt-5',
+          rounded: '!rounded-full min-w-[32px] justify-center',
+          default: {
+            activeButton: {},
+          },
+        }"
+      />
     </div>
   </div>
 </template>
@@ -73,8 +111,27 @@ const columns = [
   },
 ];
 
+const page = ref(1);
+const pageCount = ref(20);
+
+const tableConfig = {
+  wrapper: "overflow-x-auto",
+  base: "justify-self-center table-auto min-w-0",
+  divide: "divide-y divide-gray-300 dark:divide-gray-700",
+  td: {
+    base: "whitespace-nowrap",
+    padding: "px-4 py-4",
+  },
+  tr: {
+    base: "hover:bg-slate-200",
+  },
+};
+
 const projectRows = computed(() => {
-  return props.project_data.conusmptions;
+  return props.project_data.powerprofile.slice(
+    (page.value - 1) * pageCount.value,
+    page.value * pageCount.value
+  );
 });
 
 const projectColumns = [
