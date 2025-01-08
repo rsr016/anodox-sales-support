@@ -107,7 +107,6 @@ definePageMeta({
 
 onBeforeRouteLeave((to, from) => {
   // Hard fix for components breaking when navigating to other pages
-  deleteProject();
   loading.value = true;
 });
 onMounted(async () => {
@@ -323,6 +322,7 @@ const { data: project_data } = await useAsyncData("project_data", async () => {
         type: "success",
       });
       projectId = data.id;
+      router.push('/editar/projeto/' + projectId);
     }
   } else {
     projectId = route.params.id;
@@ -338,17 +338,6 @@ const { data: project_data } = await useAsyncData("project_data", async () => {
 
   return data;
 });
-
-function deleteProject() {
-  if (isNew.value) {
-    if (!isChanged.value) {
-      console.log('deletando projeto');
-      supabase.from("projects").delete().eq("id", projectId);
-      router.push("/painel");
-      return;
-    }
-  }
-}
 
 const isChanged = computed(() => {
   let changed = false;

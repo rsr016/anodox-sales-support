@@ -20,6 +20,7 @@
       label="Projetos"
       :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
     />
+    {{ '--- ADICIONAR PROJETOS AQUI ---' }}
   </div>
 </template>
 
@@ -35,6 +36,10 @@ onBeforeRouteLeave((to, from) => {
 onMounted(async () => {
   loading.value = false;
 
+  if (!client.value) {
+    router.push("/painel");
+  }
+
   formData.value.name = client.value.name;
   formData.value.type = client.value.type;
 });
@@ -42,6 +47,8 @@ onMounted(async () => {
 const route = useRoute();
 const supabase = useSupabaseClient();
 const router = useRouter();
+
+const loading = ref(false);
 
 const formData = ref({
   name: "",
@@ -87,11 +94,6 @@ const { data: client } = await useAsyncData("client", async () => {
   return data;
 });
 
-onMounted(async () => {
-  if (!client.value) {
-    router.push("/painel");
-  }
-});
 </script>
 
 <style></style>

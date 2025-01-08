@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 definePageMeta({
   middleware: ["auth"],
@@ -125,7 +125,9 @@ const bess_capacity = computed({
   get: () => project_data?.value.energy_capacity,
   set: (value) => {
     project_data.value.energy_capacity = value;
-    setTimeout(consumerBESS, 1000);
+    setTimeout(function () {
+      consumerBESS(project_data.value);
+    }, 1000);
     // emit('update:model-value', value)
   },
 });
@@ -135,68 +137,10 @@ onMounted(async () => {
     start: new Date(dateRangeLimits.value.min),
     end: addDays(new Date(dateRangeLimits.value.min), 7),
   };
-  await consumerBESS();
+  project_data.value = await consumerBESS(project_data.value);
   loading.value = false;
 });
 
-async function consumerBESS() {
-  project_data.value.powerprofile.forEach((item, index, arr) => {
-    var item = arr[index];
-    item.contracted = project_data.value.contracted_demand;
-    item.bess_capacity = project_data.value.energy_capacity;
-    item.eff_charge = (100 - project_data.value.charge_losses) / 100;
-    item.eff_discharge = (100 - project_data.value.discharge_losses) / 100;
-    item.bess_min = (project_data.value.min_soc * item.bess_capacity) / 100;
-    item.bess_max = (project_data.value.max_soc * item.bess_capacity) / 100;
-
-    if (index == 0) {
-      item.bess_energy = 0;
-      item.bess_cycles = 0;
-    } else {
-      item.bess_energy = arr[index - 1].bess_energy;
-      item.bess_cycles = arr[index - 1].bess_cycles;
-    }
-
-    if (item.peak > 0) {
-      item.power_available = 0;
-      item.power_requested = item.peak;
-    } else {
-      item.power_available = Math.max(item.contracted - item.aggregate, 0);
-      item.power_requested = Math.max(item.aggregate - item.contracted, 0);
-    }
-
-    if (item.power_available > 0) {
-      item.bess_gross_charge = Math.min(
-        item.power_available / 4,
-        (item.bess_max - item.bess_energy) / item.eff_charge
-      );
-      item.bess_net_charge = item.bess_gross_charge * item.eff_charge;
-      item.bess_gross_discharge = 0;
-      item.bess_net_discharge = 0;
-
-      item.bess_energy += item.bess_net_charge;
-    } else if (item.power_requested > 0) {
-      item.bess_gross_charge = 0;
-      item.bess_net_charge = 0;
-      item.bess_gross_discharge = Math.min(
-        item.bess_energy - item.bess_min,
-        item.power_requested / 4 / item.eff_discharge
-      );
-      item.bess_net_discharge = item.bess_gross_discharge * item.eff_discharge;
-
-      item.bess_energy -= item.bess_gross_discharge;
-    }
-
-    item.bess_soc = item.bess_energy / item.bess_capacity;
-    item.bess_cycles += item.bess_net_discharge / item.bess_capacity;
-
-    item.service_grid = item.aggregate - item.bess_net_discharge * 4;
-    item.service_to_bess = item.bess_gross_charge * 4;
-    item.service_from_bess = item.bess_net_discharge * 4;
-
-    arr[index] = item;
-  });
-}
 </script>
 
 <style></style>

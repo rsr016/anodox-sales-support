@@ -79,6 +79,10 @@
 </template>
 
 <script setup>
+const toast = useToast();
+const supabase = useSupabaseClient();
+import { parse } from "date-fns";
+
 const file = ref(null);
 const parsedFile = ref(null);
 const selectingColumns = ref(false);
@@ -165,6 +169,31 @@ const columnMappingSelection = computed(() => {
   }));
 });
 
+const selectedConsumptions = computed(() => {
+  let powerprofile = [];
+
+  parsedFile.value?.data.forEach((f) => {
+    if (
+      f[rows.value[0].mapping] &&
+      f[rows.value[1].mapping] &&
+      f[rows.value[2].mapping] &&
+      f[rows.value[0].mapping]
+    ) {
+      let row = {
+        project_id: props.project_data.id,
+        timestamp: parse(f[rows.value[0].mapping], 'dd/MM/yyyy HH:mm', new Date()),
+        aggregate: f[rows.value[1].mapping].replace(',', '.'),
+        peak: f[rows.value[2].mapping].replace(',', '.'),
+        off_peak: f[rows.value[3].mapping].replace(',', '.'),
+      };
+      console.log(row);
+      powerprofile.push(row);
+    }
+  });
+
+  return powerprofile;
+});
+
 const handleFileChange = (event) => {
   if (event.length > 0) {
     file.value = event[0];
@@ -178,19 +207,58 @@ const handleFileUpload = async () => {
     const csvData = await parseCSV(file.value);
     parsedFile.value = csvData;
     selectingColumns.value = true;
-    // await uploadDataToSupabase(csvData);
   } catch (error) {
-    console.error("Error parsing CSV or uploading data:", error);
-    alert("There was an error processing your upload.");
+    toast.add({
+      title: "Erro",
+      description: "Falha ao criar projeto: " + error.message,
+      type: "error",
+    });
   }
 };
 
 const uploadParsed = async () => {
-  alert("Uploading data to Supabase...");
   selectingColumns.value = false;
+  props.project_data.powerprofile = selectedConsumptions.value;
+  await uploadDataToSupabase();
 };
 const uploadCancel = async () => {
   selectingColumns.value = false;
+};
+
+const uploadDataToSupabase = async () => {
+  selectingColumns.value = false;
+  try {
+    // Delete existing data related to the project_id
+    const { error: deleteError } = await supabase
+      .from("powerprofile")
+      .delete()
+      .eq("project_id", props.project_data.id);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    // Insert new data
+    const { error: insertError } = await supabase
+      .from("powerprofile")
+      .insert(selectedConsumptions.value);
+
+    if (insertError) {
+      throw insertError;
+    }
+
+    toast.add({
+      title: "Success",
+      description: "Data uploaded successfully",
+      type: "success",
+    });
+  } catch (error) {
+    toast.add({
+      title: "Error",
+      description: "Failed to upload data: " + error.message,
+      type: "error",
+    });
+  }
 };
 </script>
 

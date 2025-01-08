@@ -3,13 +3,13 @@
     <div
       v-for="project in projects"
       :key="project.id"
-      class="flex justify-between px-3 py-3.5 align-middle"
+      class="flex justify-between px-3 py-3.5 my-auto"
     >
-      <p class="text-gray-600 align-middle">{{ project.type }}</p>
-      <p class="text-gray-500 align-middle">
-        {{ format(new Date(project.created_at), "d-MMM-yy") }}
+      <p class="text-gray-600 my-auto">{{ project.solution_type }}</p>
+      <p class="text-gray-500 my-auto">
+        Criado: {{ format(new Date(project.created_at), "d-MMM-yy") }}
       </p>
-      <p class="text-gray-500 align-middle">
+      <p class="text-gray-500 my-auto">
         {{ project.energy_capacity }} kWh / {{ project.output_rating }} kW
       </p>
       <div>

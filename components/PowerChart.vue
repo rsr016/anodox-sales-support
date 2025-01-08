@@ -16,52 +16,7 @@ const props = defineProps({
 });
 
 const peakBands = computed(function () {
-  let peaks = props.data.map((d) => d.peak == 0 ? 0 : (d.service_grid > 0 ? 1 : -1));
-
-  let bands = new Array();
-
-  for (let i = 0; i < peaks.length; i++) {
-    let curr = props.data[i];
-
-    if (i == 0) {
-      // Register starts, just in case
-      if (peaks[i] == 1) {
-        bands.push({ from: Date.parse(prev.timestamp) });
-      } else if (peaks[i] == -1) {
-        bands.push({ from: Date.parse(prev.timestamp) })
-      }
-    } else {
-      let prev = props.data[i - 1]
-
-      // Register ends
-      if (peaks[i] != 1 && peaks[i - 1] == 1) {
-        bands[bands.length - 1].to = Date.parse(curr.timestamp);
-        bands[bands.length - 1].color = colors.rose[100];
-      } else if (peaks[i] != -1 && peaks[i - 1] == -1) {
-        bands[bands.length - 1].to = Date.parse(curr.timestamp);
-        bands[bands.length - 1].color = colors.green[100];
-      }
-
-      // Register starts
-      if (peaks[i] == 1 && peaks[i - 1] != 1) {
-        bands.push({ from: Date.parse(prev.timestamp) });
-      } else if (peaks[i] == -1 && peaks[i - 1] != -1) {
-        bands.push({ from: Date.parse(prev.timestamp) })
-      }
-    }
-
-    if (i == peaks.length - 1) {
-      // Check last index to close final band
-      if (peaks[i] == 1) {
-        bands[bands.length - 1].to = Date.parse(curr.timestamp);
-        bands[bands.length - 1].color = colors.rose[100];
-      } else if (peaks[i] == -1) {
-        bands[bands.length - 1].to = Date.parse(curr.timestamp);
-        bands[bands.length - 1].color = colors.green[100];
-      }
-    }
-  }
-  return bands;
+  return findPeaks(props.data);
 });
 
 const powerOriginal = computed(() => {
