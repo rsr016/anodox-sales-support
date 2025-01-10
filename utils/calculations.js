@@ -52,11 +52,13 @@ export const findPeaks = (data) => {
 };
 
 export const consumerBESS = async (data) => {
+  console.log('update calcs')
   let t1 = data.powerprofile[0].timestamp;
   let t2 = data.powerprofile[1].timestamp;
 
   // 3600000 ms in an hour, compare to actual ms elapsed between timestamps
-  let power_energy_factor = 3600000 / (parseISO(t2) - parseISO(t1));
+  let time_factor = 3600000 / (parseISO(t2) - parseISO(t1));
+  let sendout_limit = data.output_rating;
 
   data.powerprofile.forEach((item, index, arr) => {
     var item = arr[index];
@@ -85,8 +87,9 @@ export const consumerBESS = async (data) => {
 
     if (item.power_available > 0) {
       item.bess_gross_charge = Math.min(
-        item.power_available / power_energy_factor,
-        (item.bess_max - item.bess_energy) / item.eff_charge
+        item.power_available / time_factor,
+        (item.bess_max - item.bess_energy) / item.eff_charge,
+        sendout_limit / time_factor
       );
       item.bess_net_charge = item.bess_gross_charge * item.eff_charge;
       item.bess_gross_discharge = 0;
@@ -98,7 +101,8 @@ export const consumerBESS = async (data) => {
       item.bess_net_charge = 0;
       item.bess_gross_discharge = Math.min(
         item.bess_energy - item.bess_min,
-        item.power_requested / power_energy_factor / item.eff_discharge
+        item.power_requested / time_factor / item.eff_discharge,
+        sendout_limit / time_factor
       );
       item.bess_net_discharge = item.bess_gross_discharge * item.eff_discharge;
 
@@ -108,9 +112,9 @@ export const consumerBESS = async (data) => {
     item.bess_soc = item.bess_energy / item.bess_capacity;
     item.bess_cycles += item.bess_net_discharge / item.bess_capacity;
 
-    item.service_grid = item.aggregate - item.bess_net_discharge * power_energy_factor;
-    item.service_to_bess = item.bess_gross_charge * power_energy_factor;
-    item.service_from_bess = item.bess_net_discharge * power_energy_factor;
+    item.service_grid = item.aggregate - item.bess_net_discharge * time_factor;
+    item.service_to_bess = item.bess_gross_charge * time_factor;
+    item.service_from_bess = item.bess_net_discharge * time_factor;
 
     arr[index] = item;
   });

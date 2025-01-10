@@ -97,6 +97,21 @@
         </UMeter>
       </template>
     </UTable>
+
+    <UPagination
+      v-model="page"
+      :page-count="pageCount"
+      :total="props.filtered_performance.length"
+      class="container"
+      :ui="{
+        wrapper: 'flex items-center gap-1 justify-center',
+        base: 'mt-5',
+        rounded: '!rounded-full min-w-[32px] justify-center',
+        default: {
+          activeButton: {},
+        },
+      }"
+    />
   </div>
 </template>
 

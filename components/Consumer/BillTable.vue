@@ -21,6 +21,9 @@
         <p :class="'justify-self-end ' + (row.saving < 0 ? 'text-green-500' : 'text-red-700')">
           {{ row.saving == 0 ? '-' : 'R$ ' + formatNum(row.saving) }}
         </p>
+        <p class="justify-self-end text-slate-300 text-sm" v-if="row.new || row.old">
+          {{ row.new - row.old == 0 ? '-' : formatNum(row.new - row.old) }}
+        </p>
       </template>
     </UTable>
   </div>
@@ -121,11 +124,19 @@ const rows = computed(() => {
     data[k].saving = data[k].new_value - data[k].old_value;
   })
 
+  data.subvention = {
+    item: 'Subvenção (R$)',
+    old_value: data.demand.old * proj.bill_subvention_demand + data.peaktusd.old * proj.bill_subvention_tusd,
+    new_value: data.demand.new * proj.bill_subvention_demand + data.peaktusd.new * proj.bill_subvention_tusd,
+  }
+  data.subvention.saving = data.subvention.new_value - data.subvention.old_value;
+
   data.total = {
     item: 'Total',
     old_value: data.demand.old_value + data.surcharge.old_value + data.peaktusd.old_value + data.offpeaktusd.old_value + data.energy.old_value,
     new_value: data.demand.new_value + data.surcharge.new_value + data.peaktusd.new_value + data.offpeaktusd.new_value + data.energy.new_value,
-    saving: data.demand.saving + data.surcharge.saving + data.peaktusd.saving + data.offpeaktusd.saving + data.energy.saving
+    saving: data.demand.saving + data.surcharge.saving + data.peaktusd.saving + data.offpeaktusd.saving + data.energy.saving + data.subvention.saving,
+    class: 'font-bold  py-8 bg-slate-200'
   }
 
   return Object.values(data)

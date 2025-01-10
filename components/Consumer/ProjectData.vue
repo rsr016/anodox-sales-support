@@ -5,7 +5,7 @@
         <p>
           <span class="font-semibold text-gray-900"
             >{{ project.client.name }} </span
-          ><span>{{ " - " + project.type }}</span>
+          ><span>{{ project.type ? " - " + project.type : '' }}</span>
           <UButton
             @click.prevent="leavePage('/editar/projeto/' + project.id)"
             class="ml-5"

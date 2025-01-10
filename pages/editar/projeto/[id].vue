@@ -29,6 +29,13 @@
         </div>
       </div>
 
+      <div class="px-5 my-2">
+        <div class="col-span-2 grid-flow-row flex my-1">
+          <p class="my-auto mr-3">Descrição:</p>
+          <UTextarea autoresize placeholder="Adicionar descrição..." :rows="1" v-model="form.type" class="w-full"/>
+        </div>
+      </div>
+
       <div class="px-5">
         <div class="col-span-2 grid-flow-row flex my-1">
           <p class="my-auto mr-3">Tipo de projeto:</p>
@@ -124,6 +131,10 @@ const loading = ref(true);
 
 const project_form = [
   {
+    label: "Demanda Contratada (kW)",
+    model: "contracted_demand",
+  },
+  {
     label: "Capacidade de Energia (kWh)",
     model: "energy_capacity",
   },
@@ -151,20 +162,20 @@ const project_form = [
 
 const bill_table = {
   rows: [
-    {
-      label: "Demanda (kW)",
-      type: "row",
-      items: [
-        {
-          label: "Contratada",
-          model: "contracted_demand",
-        },
-        {
-          label: "Ultrapassagem",
-          model: "bill_amount_surcharge",
-        },
-      ],
-    },
+    // {
+    //   label: "Demanda (kW)",
+    //   type: "row",
+    //   items: [
+    //     {
+    //       label: "Contratada",
+    //       model: "contracted_demand",
+    //     },
+    //     {
+    //       label: "Ultrapassagem",
+    //       model: "bill_amount_surcharge",
+    //     },
+    //   ],
+    // },
     {
       label: "Tarifa Demanda (R$/kW/mês)",
       type: "list",
@@ -183,20 +194,20 @@ const bill_table = {
         },
       ],
     },
-    {
-      label: "TUSD (kWh/mês)",
-      type: "row",
-      items: [
-        {
-          label: "Ponta",
-          model: "bill_amount_peaktusd",
-        },
-        {
-          label: "Fora Ponta",
-          model: "bill_amount_offpeaktusd",
-        },
-      ],
-    },
+    // {
+    //   label: "TUSD (kWh/mês)",
+    //   type: "row",
+    //   items: [
+    //     {
+    //       label: "Ponta",
+    //       model: "bill_amount_peaktusd",
+    //     },
+    //     {
+    //       label: "Fora Ponta",
+    //       model: "bill_amount_offpeaktusd",
+    //     },
+    //   ],
+    // },
     {
       label: "Tarifa TUSD (R$/kWh)",
       type: "list",
@@ -322,7 +333,7 @@ const { data: project_data } = await useAsyncData("project_data", async () => {
         type: "success",
       });
       projectId = data.id;
-      router.push('/editar/projeto/' + projectId);
+      router.push("/editar/projeto/" + projectId);
     }
   } else {
     projectId = route.params.id;
@@ -367,7 +378,7 @@ async function saveProject() {
     });
     for (let property in form.value) {
       project_data.value[property] = form.value[property];
-    };
+    }
     isNew.value = false;
   }
 }
@@ -380,7 +391,9 @@ onMounted(() => {
     form.value[formItem.model] = project_data.value[formItem.model];
   }
 
+  // Manual insertion of additional fields
   form.value.solution_type = project_data.value.solution_type;
+  form.value.type = project_data.value.type;
 });
 </script>
 

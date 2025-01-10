@@ -1,15 +1,6 @@
 Verificar update de dados de performance
 
 Pagina de editar cliente e listar projetos dele (para depois editar também)
-
 Criar Bloco botões no navbar para edição/simulação (projeto), e edição/projetos (cliente)
-
-
-Adciionar quantitativos na economia pagina simular
-Limitar output de energia na lógica
-
 Fix layout in small screen when editing project
-
 Remove project type description from main page (new projects will not have)
-Remove project type description from simulation page
-Does project need data from bill regarding surcharge or over consumption?
