@@ -95,7 +95,8 @@ const props = defineProps({
 });
 
 const rows = ref([
-  { name: "Hora", value: "timestamp", mapping: null, preview: null },
+  { name: "Dia", value: "date", mapping: null, preview: null },
+  { name: "Hora", value: "hour", mapping: null, preview: null },
   { name: "Total (kW)", value: "aggregate", mapping: null, preview: null },
   { name: "Ponta (kW)", value: "peak", mapping: null, preview: null },
   { name: "Fora Ponta (kW)", value: "off_peak", mapping: null, preview: null },
@@ -177,16 +178,20 @@ const selectedConsumptions = computed(() => {
       f[rows.value[0].mapping] &&
       f[rows.value[1].mapping] &&
       f[rows.value[2].mapping] &&
-      f[rows.value[0].mapping]
+      f[rows.value[3].mapping] &&
+      f[rows.value[4].mapping]
     ) {
       let row = {
         project_id: props.project_data.id,
-        timestamp: parse(f[rows.value[0].mapping], 'dd/MM/yyyy HH:mm', new Date()),
-        aggregate: f[rows.value[1].mapping].replace(',', '.'),
-        peak: f[rows.value[2].mapping].replace(',', '.'),
-        off_peak: f[rows.value[3].mapping].replace(',', '.'),
+        timestamp: parse(
+          f[rows.value[0].mapping].replace("00:00", "") + " " +  f[rows.value[1].mapping] + ":00",
+          "dd/MM/yyyy HH:mm",
+          new Date()
+        ),
+        aggregate: f[rows.value[2].mapping].replace(",", "."),
+        peak: f[rows.value[3].mapping].replace(",", "."),
+        off_peak: f[rows.value[4].mapping].replace(",", "."),
       };
-      console.log(row);
       powerprofile.push(row);
     }
   });

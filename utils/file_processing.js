@@ -13,3 +13,11 @@ export const parseCSV = async (file) => {
     });
   });
 };
+
+export const dataToCSV = (data) => {
+  return Papa.unparse(data);
+};
+
+export const formatNum = (num) => {
+  return num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+};

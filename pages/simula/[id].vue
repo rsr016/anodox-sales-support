@@ -26,6 +26,7 @@
       <ConsumerBillTable
         :performance="filtered_performance"
         :project="project_info"
+        class="lg:mx-36 mb-6"
       />
 
       <UDivider
@@ -115,7 +116,7 @@ const filtered_performance = computed(() => {
     (p) =>
       new Date(new Date(p.timestamp).toDateString()) >=
         new Date(new Date(dateRange.value.start).toDateString()) &&
-      new Date(new Date(p.timestamp).toDateString()) <
+      new Date(new Date(p.timestamp).toDateString()) <=
         new Date(new Date(dateRange.value.end).toDateString())
   );
   return perf;
@@ -139,6 +140,8 @@ onMounted(async () => {
   };
   project_data.value = await consumerBESS(project_data.value);
   loading.value = false;
+  // let teste = dataToCSV(project_data.value.powerprofile);
+  // console.log(teste)
 });
 
 </script>

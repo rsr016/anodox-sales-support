@@ -6,6 +6,7 @@
       class="flex justify-between px-3 py-3.5 my-auto"
     >
       <p class="text-gray-600 my-auto">{{ project.solution_type }}</p>
+      <p class="text-gray-600 my-auto">{{ project.type }}</p>
       <p class="text-gray-500 my-auto">
         Criado: {{ format(new Date(project.created_at), "d-MMM-yy") }}
       </p>
