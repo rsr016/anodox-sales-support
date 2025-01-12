@@ -1,6 +1,9 @@
-Verificar update de dados de performance
-
 Pagina de editar cliente e listar projetos dele (para depois editar também)
-Criar Bloco botões no navbar para edição/simulação (projeto), e edição/projetos (cliente)
 Fix layout in small screen when editing project
-Remove project type description from main page (new projects will not have)
+
+Change project individual page with selectors?
+Criar Bloco botões no navbar para edição/simulação (projeto), e edição/projetos (cliente)
+Add optimizer (CAPEX vs savings?).
+
+
+Arrow types: curve, ramp

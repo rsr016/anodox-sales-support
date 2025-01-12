@@ -5,8 +5,12 @@
       :key="project.id"
       class="flex justify-between px-3 py-3.5 my-auto"
     >
-      <p class="text-gray-600 my-auto">{{ project.solution_type }}</p>
-      <p class="text-gray-600 my-auto">{{ project.type }}</p>
+      <div class="min-w-60">
+        <p class="text-gray-500">{{ project.solution_type }}</p>
+        <p class="text-gray-400">{{ project.type }}</p>
+      </div>
+      <!-- <p class="text-gray-600 my-auto">{{ project.solution_type }}</p>
+      <p class="text-gray-600 my-auto">{{ project.type }}</p> -->
       <p class="text-gray-500 my-auto">
         Criado: {{ format(new Date(project.created_at), "d-MMM-yy") }}
       </p>

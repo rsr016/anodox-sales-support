@@ -44,10 +44,10 @@ const props = defineProps({
 });
 
 const TableConfig = {
-  base: 'justify-self-center place-content-center my-3 table-auto',
+  base: 'justify-self-center place-content-center table-auto',
   divide: 'divide-y divide-gray-300 dark:divide-gray-700',
   th: {
-    // base: 'hidden'
+    base: "text-center",
   },
   td: {
     base: 'justify-self-center',
