@@ -2,7 +2,7 @@ import colors from "#tailwind-config/theme/colors";
 import { parseISO  } from "date-fns";
 
 export const findPeaks = (data) => {
-  let peaks = data.map((d) => d.peak == 0 ? 0 : (d.service_grid > 0 ? 1 : -1));
+  let peaks = data.map((d) => d.peak == 0 ? 0 : (d.peak - d.service_from_bess > 0 ? 1 : -1));
 
   let bands = new Array();
 
