@@ -34,6 +34,9 @@ export default defineNuxtConfig({
     { src: '~/plugins/highcharts.client.js', mode: 'client' }
   ],
   tailwindcss: { exposeConfig: true },
+  ui: {
+    safelistColors: ['emerald']
+  },
   headlessui: {
     prefix: 'H'
   },

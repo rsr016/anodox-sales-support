@@ -47,13 +47,34 @@
       </div>
 
       <div class="flex my-5 place-content-center place-items-center">
-        <UButton @click="exportToCSV" class="px-4 py-2">Baixar dados completos em CSV</UButton>
+        <UButton @click="exportToCSV" class="px-4 py-2"
+          >Baixar dados completos em CSV</UButton
+        >
       </div>
 
       <UDivider
         label="Contas Mensais"
         :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
       />
+
+      <!-- <UAccordion
+        color="emerald"
+        variant="soft"
+        size="sm"
+        :items="billsByMonth"
+      >
+        <template #item="{ item }">
+          <div class="container min-w-min">
+            <ConsumerBillTable
+              :performance="item.data"
+              :project="project_data"
+              class="mx-5 bg-slate-100 border"
+            />
+            <div class="h-5"></div>
+          </div>
+        </template>
+      </UAccordion> -->
+
       <UTable
         :columns="tableColumns"
         :rows="billsByMonth"
@@ -89,7 +110,10 @@
               <p class="text-sm font-light text-center">
                 {{ formatNum(row.bill[2].old + row.bill[3].old) }}
               </p>
-              <UIcon name="i-hugeicons-arrow-right-02" class="w-3 h-3 mx-1 my-auto" />
+              <UIcon
+                name="i-hugeicons-arrow-right-02"
+                class="w-3 h-3 mx-1 my-auto"
+              />
               <p class="text-sm font-light text-center">
                 {{ formatNum(row.bill[2].new + row.bill[3].new) }}
               </p>
@@ -105,7 +129,10 @@
               <p class="text-sm font-light text-center">
                 {{ formatNum(row.bill[3].old) }}
               </p>
-              <UIcon name="i-hugeicons-arrow-right-02" class="w-3 h-3 mx-1 my-auto" />
+              <UIcon
+                name="i-hugeicons-arrow-right-02"
+                class="w-3 h-3 mx-1 my-auto"
+              />
               <p class="text-sm font-light text-center">
                 {{ formatNum(row.bill[3].new) }}
               </p>
@@ -121,7 +148,10 @@
               <p class="text-sm font-light text-center">
                 {{ formatNum(row.bill[2].old) }}
               </p>
-              <UIcon name="i-hugeicons-arrow-right-02" class="w-3 h-3 mx-1 my-auto" />
+              <UIcon
+                name="i-hugeicons-arrow-right-02"
+                class="w-3 h-3 mx-1 my-auto"
+              />
               <p class="text-sm font-light text-center">
                 {{ formatNum(row.bill[2].new) }}
               </p>
@@ -146,7 +176,6 @@
         </template>
       </UTable>
     </div>
-
   </div>
 </template>
 
@@ -229,6 +258,15 @@ const billsByMonth = computed(() => {
   return Object.keys(months).map((month_key) => {
     return {
       id: id++,
+      label:
+        id +
+        ". " +
+        intlFormat(
+          parseISO(month_key.toString(), "yyyyMM"),
+          { month: "long" },
+          { locale: "pt-BR" }
+        ),
+      // slot: "bill-data",
       month: month_key,
       bill: consumerBill(months[month_key], project_data.value),
       data: months[month_key],
@@ -262,11 +300,11 @@ const overviewData = computed(() => {
 
 function exportToCSV() {
   const csvData = dataToCSV(project_data.value.powerprofile);
-  const blob = new Blob([csvData], { type: 'text/csv' });
+  const blob = new Blob([csvData], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
+  const a = document.createElement("a");
   a.href = url;
-  a.download = project_data.value.id + '.csv';
+  a.download = project_data.value.id + ".csv";
   a.click();
   URL.revokeObjectURL(url);
 }

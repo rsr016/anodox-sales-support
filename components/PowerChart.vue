@@ -24,7 +24,7 @@ const powerOriginal = computed(() => {
 });
 
 const powerFromGrid = computed(() => {
-  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat(p.service_grid.toFixed(2)) }));
+  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((p.aggregate -p.service_from_bess).toFixed(2)) }));
 });
 
 const powerToBESS = computed(() => {

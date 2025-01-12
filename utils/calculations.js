@@ -185,7 +185,7 @@ export const consumerBill = (perf, proj) => {
     old_value: data.demand.old_value + data.surcharge.old_value + data.peaktusd.old_value + data.offpeaktusd.old_value + data.energy.old_value,
     new_value: data.demand.new_value + data.surcharge.new_value + data.peaktusd.new_value + data.offpeaktusd.new_value + data.energy.new_value,
     saving: data.demand.saving + data.surcharge.saving + data.peaktusd.saving + data.offpeaktusd.saving + data.energy.saving + data.subvention.saving,
-    class: 'font-bold  py-8 bg-slate-200'
+    class: 'font-bold py-8 bg-slate-200'
   }
 
   return Object.values(data)

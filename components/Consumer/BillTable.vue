@@ -47,7 +47,7 @@ const TableConfig = {
   base: 'justify-self-center place-content-center table-auto',
   divide: 'divide-y divide-gray-300 dark:divide-gray-700',
   th: {
-    base: "text-center",
+    base: "text-center bg-slate-200",
   },
   td: {
     base: 'justify-self-center',
