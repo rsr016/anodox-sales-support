@@ -35,7 +35,7 @@ export default defineNuxtConfig({
   ],
   tailwindcss: { exposeConfig: true },
   ui: {
-    safelistColors: ['emerald']
+    safelistColors: ['emerald', 'orange', 'amber', 'rose', 'sky', 'violet', 'gray']
   },
   headlessui: {
     prefix: 'H'

@@ -4,6 +4,55 @@
     <!-- Only avoided surcharge, avoided peak, and additional energy -->
 
     <div v-else class="container mx-5">
+      <UModal v-model="optimizer.open">
+        <UCard>
+          <template #header>
+            <p class="text-center font-bold text-lg">Otimizador</p>
+          </template>
+
+          <div class="p-2">
+            <p class="font-light">Custo do sistema instalado (R$/kWh)</p>
+            <UInput
+              v-model="optimizer.cost"
+              label="Custo do BESS"
+              class="mb-3"
+            />
+            <UDivider
+              label="Resultados"
+              :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
+            />
+            <div
+              class="grid grid-cols-2 grid-flow-row gap-2 justify-between my-3"
+            >
+              <p class="font-light">Capacidade do BESS:</p>
+              <p class="text-right">
+                {{ formatNum(optimizerResults.capacity) }} kWh
+              </p>
+              <p class="font-light">Custo do sistema:</p>
+              <p class="text-right">
+                R$ {{ formatNum(optimizerResults.price) }}
+              </p>
+              <p class="font-light">Retorno do investimento (no período):</p>
+              <p class="text-right">
+                {{ formatNum(optimizerResults.return * 100) }} %
+              </p>
+            </div>
+          </div>
+
+          <template #footer>
+            <div class="flex justify-between">
+              <UButton @click="optimizer.open = false">Fechar</UButton>
+              <UButton
+                :disabled="optimizer.calculating"
+                @click="startOptimizing"
+                :color="'emerald'"
+                >Otimizar</UButton
+              >
+            </div>
+          </template>
+        </UCard>
+      </UModal>
+
       <UDivider
         label="Resumo Geral"
         :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
@@ -47,7 +96,9 @@
       </div>
 
       <div class="flex my-5 place-content-center place-items-center">
-        <UButton @click="exportToCSV" class="px-4 py-2"
+        <UButton
+          @click="exportToCSV(project_data.powerprofile, project_data.id)"
+          class="px-4 py-2"
           >Baixar dados completos em CSV</UButton
         >
       </div>
@@ -211,6 +262,34 @@ const expand = ref({
   row: {},
 });
 
+const optimizer = ref({
+  open: false,
+  cost: 2000,
+  calculating: false,
+  previous_results: {},
+  previous_cost_change: 0,
+  previous_return_change: 0,
+});
+
+const optimizerResults = computed(() => {
+  return {
+    capacity: project_data.value.energy_capacity,
+    price: optimizer.value.cost * project_data.value.energy_capacity,
+    return:
+      overviewData.value.gain /
+      (optimizer.value.cost * project_data.value.energy_capacity),
+  };
+});
+
+defineShortcuts({
+  meta_k: {
+    usingInput: true,
+    handler: () => {
+      optimizer.value.open = !optimizer.value.open;
+    },
+  },
+});
+
 const tableColumns = [
   { key: "month", label: "Mês", sortable: true },
   { key: "consumption", label: "Consumo" },
@@ -298,17 +377,6 @@ const overviewData = computed(() => {
   return overview;
 });
 
-function exportToCSV() {
-  const csvData = dataToCSV(project_data.value.powerprofile);
-  const blob = new Blob([csvData], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = project_data.value.id + ".csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 onMounted(async () => {
   dateRange.value = {
     start: new Date(dateRangeLimits.value.min),
@@ -355,14 +423,21 @@ const filtered_performance = computed(() => {
   return perf;
 });
 
-const bess_capacity = computed({
+const bess_capacity_immediate = computed({
+  get: () => project_data?.value.energy_capacity,
+  set: (value) => {
+    project_data.value.energy_capacity = value;
+    consumerBESS(project_data.value);
+  },
+});
+
+const bess_capacity_lazy = computed({
   get: () => project_data?.value.energy_capacity,
   set: (value) => {
     project_data.value.energy_capacity = value;
     setTimeout(function () {
       consumerBESS(project_data.value);
     }, 1000);
-    // emit('update:model-value', value)
   },
 });
 </script>

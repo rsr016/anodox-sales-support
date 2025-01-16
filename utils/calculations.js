@@ -2,7 +2,7 @@ import colors from "#tailwind-config/theme/colors";
 import { parseISO  } from "date-fns";
 
 export const findPeaks = (data) => {
-  let peaks = data.map((d) => d.peak == 0 ? 0 : (d.peak - d.service_from_bess > 0 ? 1 : -1));
+  let peaks = data.map((d) => d.power_cons_peak == 0 ? 0 : (d.power_cons_peak - d.service_from_bess > 0 ? 1 : -1));
 
   let bands = new Array();
 
@@ -76,12 +76,12 @@ export const consumerBESS = async (data) => {
       item.bess_cycles = arr[index - 1].bess_cycles;
     }
 
-    if (item.peak > 0) {
+    if (item.power_cons_peak > 0) {
       item.power_available = 0; // Power
-      item.power_requested = item.peak; // Power
+      item.power_requested = item.power_cons_peak; // Power
     } else {
-      item.power_available = Math.max(item.contracted - item.aggregate, 0); // Power
-      item.power_requested = Math.max(item.aggregate - item.contracted, 0); // Power
+      item.power_available = Math.max(item.contracted - item.power_cons_total, 0); // Power
+      item.power_requested = Math.max(item.power_cons_total - item.contracted, 0); // Power
     }
 
     if (item.power_available > 0) {
@@ -99,7 +99,7 @@ export const consumerBESS = async (data) => {
         sendout_limit // Power limit
       ); // Power
     }
-    item.service_grid = item.aggregate - item.service_from_bess + item.service_to_bess; // Power
+    item.service_grid = item.power_cons_total - item.service_from_bess + item.service_to_bess; // Power
 
     item.bess_gross_charge = item.service_to_bess / time_factor; // Energy from power
     item.bess_net_charge = item.bess_gross_charge * item.eff_charge; // Energy
@@ -128,26 +128,26 @@ export const consumerBill = (perf, proj) => {
     // Power
     demand: {
       item: 'Demanda (kW)',
-      old: Math.max(Math.max.apply(Math, perf.map((x) => x.aggregate)), proj.contracted_demand),
+      old: Math.max(Math.max.apply(Math, perf.map((x) => x.power_cons_total)), proj.contracted_demand),
       new: Math.max.apply(Math, perf.map((x) => x.service_grid)),
     },
     // Power
     surcharge: {
       item: 'Ultrapassagem (kW)',
-      old: Math.max(Math.max.apply(Math, perf.map((x) => x.aggregate)) - proj.contracted_demand, 0) ,
+      old: Math.max(Math.max.apply(Math, perf.map((x) => x.power_cons_total)) - proj.contracted_demand, 0) ,
       new: Math.max.apply(Math, perf.map((x) => x.service_grid)) - proj.contracted_demand,
     },
     // Energy (fixed proportional energy in time block in case peak cutoff does not match time block)
     offpeaktusd: {
       item: 'TUSD Fora Ponta (kWh)',
-      old: perf.reduce(function (acc, cur) { return acc + (cur.off_peak) / time_factor }, 0),
-      new: perf.reduce(function (acc, cur) { return acc + (cur.off_peak > 0 ? cur.off_peak / cur.aggregate * cur.service_grid : 0) / time_factor }, 0),
+      old: perf.reduce(function (acc, cur) { return acc + (cur.power_cons_offpeak) / time_factor }, 0),
+      new: perf.reduce(function (acc, cur) { return acc + (cur.power_cons_offpeak > 0 ? cur.power_cons_offpeak / cur.power_cons_total * cur.service_grid : 0) / time_factor }, 0),
     },
     // Energy (fixed proportional energy in time block in case peak cutoff does not match time block)
     peaktusd: {
       item: 'TUSD Ponta (kWh)',
-      old: perf.reduce(function (acc, cur) { return acc + (cur.peak / time_factor) }, 0) ,
-      new: perf.reduce(function (acc, cur) { return acc + (cur.peak > 0 ? cur.peak / cur.aggregate * cur.service_grid : 0) / time_factor }, 0) ,
+      old: perf.reduce(function (acc, cur) { return acc + (cur.power_cons_peak / time_factor) }, 0) ,
+      new: perf.reduce(function (acc, cur) { return acc + (cur.power_cons_peak > 0 ? cur.power_cons_peak / cur.power_cons_total * cur.service_grid : 0) / time_factor }, 0) ,
     }
   }
 
@@ -182,8 +182,8 @@ export const consumerBill = (perf, proj) => {
 
   data.total = {
     item: 'Total',
-    old_value: data.demand.old_value + data.surcharge.old_value + data.peaktusd.old_value + data.offpeaktusd.old_value + data.energy.old_value,
-    new_value: data.demand.new_value + data.surcharge.new_value + data.peaktusd.new_value + data.offpeaktusd.new_value + data.energy.new_value,
+    old_value: data.demand.old_value + data.surcharge.old_value + data.peaktusd.old_value + data.offpeaktusd.old_value + data.energy.old_value + data.subvention.old_value,
+    new_value: data.demand.new_value + data.surcharge.new_value + data.peaktusd.new_value + data.offpeaktusd.new_value + data.energy.new_value + data.subvention.new_value,
     saving: data.demand.saving + data.surcharge.saving + data.peaktusd.saving + data.offpeaktusd.saving + data.energy.saving + data.subvention.saving,
     class: 'font-bold py-8 bg-slate-200'
   }

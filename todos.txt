@@ -3,7 +3,9 @@ Fix layout in small screen when editing project
 
 Change project individual page with selectors?
 Criar Bloco botões no navbar para edição/simulação (projeto), e edição/projetos (cliente)
-Add optimizer (CAPEX vs savings?).
-
 
 Arrow types: curve, ramp
+
+Add optimizer (CAPEX vs savings?).
+
+Seleção de tipo de projeto muda layout de resultados e layout de edição (exemplo conta para consumidor, tarifas e receitas para GD e curtailment diferente)

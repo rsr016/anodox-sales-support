@@ -97,9 +97,12 @@ const props = defineProps({
 const rows = ref([
   { name: "Dia", value: "date", mapping: null, preview: null },
   { name: "Hora", value: "hour", mapping: null, preview: null },
-  { name: "Total (kW)", value: "aggregate", mapping: null, preview: null },
-  { name: "Ponta (kW)", value: "peak", mapping: null, preview: null },
-  { name: "Fora Ponta (kW)", value: "off_peak", mapping: null, preview: null },
+  { name: "Total (kW)", value: "power_cons_total", mapping: null, preview: null },
+  { name: "Ponta (kW)", value: "power_cons_peak", mapping: null, preview: null },
+  { name: "Fora Ponta (kW)", value: "power_cons_offpeak", mapping: null, preview: null },
+  { name: "Queda (kW)", value: "power_outage", mapping: null, preview: null },
+  { name: "Geração (kW)", value: "power_gen", mapping: null, preview: null },
+  { name: "Restrição (kW)", value: "power_constraint", mapping: null, preview: null },
 ]);
 const columns = [
   {
@@ -124,7 +127,7 @@ const tableConfig = {
   base: "justify-self-center table-auto min-w-0",
   divide: "divide-y divide-gray-300 dark:divide-gray-700",
   td: {
-    base: "whitespace-nowrap",
+    base: "whitespace-nowrap text-center border",
     padding: "px-4 py-4",
   },
   tr: {
@@ -145,16 +148,29 @@ const projectColumns = [
     label: "Hora",
   },
   {
-    key: "aggregate",
+    key: "power_cons_total",
     label: "Total (kW)",
   },
   {
-    key: "peak",
+    key: "power_cons_peak",
     label: "Ponta (kW)",
   },
   {
-    key: "off_peak",
+    key: "power_cons_offpeak",
     label: "Fora Ponta (kW)",
+  },
+  {
+    key: "power_outage",
+    label: "Queda (kW)",
+  },
+
+  {
+    key: "power_gen",
+    label: "Geração (kW)",
+  },
+  {
+    key: "power_constraint",
+    label: "Restrição (kW)",
   },
 ];
 
@@ -188,9 +204,13 @@ const selectedConsumptions = computed(() => {
           "dd/MM/yyyy HH:mm",
           new Date()
         ),
-        aggregate: f[rows.value[2].mapping].replace(",", "."),
-        peak: f[rows.value[3].mapping].replace(",", "."),
-        off_peak: f[rows.value[4].mapping].replace(",", "."),
+        power_cons_total: f[rows.value[2].mapping].replace(",", "."),
+        power_cons_peak: f[rows.value[3].mapping].replace(",", "."),
+        power_cons_offpeak: f[rows.value[4].mapping].replace(",", "."),
+
+        power_outage: f[rows.value[5].mapping].replace(",", "."),
+        power_gen: f[rows.value[6].mapping].replace(",", "."),
+        power_constraint: f[rows.value[7].mapping].replace(",", "."),
       };
       powerprofile.push(row);
     }

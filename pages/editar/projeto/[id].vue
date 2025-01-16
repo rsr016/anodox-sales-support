@@ -32,7 +32,13 @@
       <div class="px-5 my-2">
         <div class="col-span-2 grid-flow-row flex my-1">
           <p class="my-auto mr-3">Descrição:</p>
-          <UTextarea autoresize placeholder="Adicionar descrição..." :rows="1" v-model="form.type" class="w-full"/>
+          <UTextarea
+            autoresize
+            placeholder="Adicionar descrição..."
+            :rows="1"
+            v-model="form.type"
+            class="w-full"
+          />
         </div>
       </div>
 
@@ -131,10 +137,6 @@ const loading = ref(true);
 
 const project_form = [
   {
-    label: "Demanda Contratada (kW)",
-    model: "contracted_demand",
-  },
-  {
     label: "Capacidade de Energia (kWh)",
     model: "energy_capacity",
   },
@@ -177,9 +179,13 @@ const bill_table = {
     //   ],
     // },
     {
-      label: "Tarifa Demanda (R$/kW/mês)",
+      label: "Demanda (R$/kW/mês)",
       type: "list",
       items: [
+        {
+          label: "Demanda Contratada (kW)",
+          model: "contracted_demand",
+        },
         {
           label: "Tarifa",
           model: "bill_tar_demand",
@@ -209,7 +215,7 @@ const bill_table = {
     //   ],
     // },
     {
-      label: "Tarifa TUSD (R$/kWh)",
+      label: "TUSD (R$/kWh)",
       type: "list",
       items: [
         {
