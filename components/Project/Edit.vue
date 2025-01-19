@@ -1,15 +1,15 @@
 <template>
   <div>
     <div
-      class="grid grid-cols-2 top-24 sticky justify-between items-center z-40 bg-slate-50 p-5 mb-4"
+      class="grid grid-cols-2 top-24 sticky justify-between items-center z-40 bg-slate-50"
     >
-      <div class="grid grid-cols-2">
+      <!-- <div class="grid grid-cols-2">
         <div class="col-span-2 grid-flow-row flex">
           <h2 class="text-xl font-bold">{{ modelValue.client.name }}</h2>
           <p class="mx-4 my-auto">{{ modelValue.client.type }}</p>
         </div>
-      </div>
-      <div class="flex justify-right">
+      </div> -->
+      <div class="flex justify-right" v-if="isChanged" >
         <UButton
           @click.prevent="saveProject"
           :disabled="!isChanged"

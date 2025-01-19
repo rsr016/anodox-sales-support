@@ -1,11 +1,9 @@
 Pagina de editar cliente e listar projetos dele (para depois editar também)
 Fix layout in small screen when editing project
 
-Change project individual page with selectors?
-Criar Bloco botões no navbar para edição/simulação (projeto), e edição/projetos (cliente)
-
 Arrow types: curve, ramp
 
-Add optimizer (CAPEX vs savings?).
+URGENTE Add optimizer (CAPEX vs savings?).
+URGENTE fazer novo projeto com dados 30 min baseado no jbs
 
 Seleção de tipo de projeto muda layout de resultados e layout de edição (exemplo conta para consumidor, tarifas e receitas para GD e curtailment diferente)

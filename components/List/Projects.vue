@@ -19,9 +19,9 @@
       </p>
       <div>
         <button class="btn-light mx-1" @click="router.push('/projeto/' + project.id)">
-          Simular
+          Detalhes
         </button>
-        <button
+        <!-- <button
           class="btn-light mx-1"
           @click="router.push('/projeto/' + project.id)"
         >
@@ -32,7 +32,7 @@
           @click="router.push('/projeto/' + project.id)"
         >
           Editar
-        </button>
+        </button> -->
       </div>
     </div>
   </div>

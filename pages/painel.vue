@@ -44,7 +44,7 @@
             class=""
           />
           <UButton
-            @click="router.push(`/editar/cliente/${row.id}`)"
+            @click="router.push(`/cliente/${row.id}`)"
             icon="i-heroicons-pencil-square"
             :label="'Editar Cliente'"
           />
