@@ -6,11 +6,11 @@
           <span class="font-semibold text-gray-900"
             >{{ project.client.name }} </span
           ><span>{{ project.type ? " - " + project.type : '' }}</span>
-          <UButton
+          <!-- <UButton
             @click.prevent="leavePage('/editar/projeto/' + project.id)"
             class="ml-5"
             >Editar Projeto</UButton
-          >
+          > -->
         </p>
         <p class="mt-3">Parametros:</p>
         <UTable :rows="dataRows" :columns="dataColumns" :ui="dataTableConfig">

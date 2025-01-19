@@ -81,7 +81,12 @@ const columns = [
 
 
 const rows = computed(() => {
-  return consumerBill(props.performance, props.project);
+  try {
+    return consumerBill(props.performance, props.project);
+  } catch (error) {
+    return [];
+  }
+  
 })
 
 function formatNum(num) {

@@ -18,18 +18,18 @@
         {{ project.energy_capacity }} kWh / {{ project.output_rating }} kW
       </p>
       <div>
-        <button class="btn-light mx-1" @click="router.push('/simula/' + project.id)">
+        <button class="btn-light mx-1" @click="router.push('/projeto/' + project.id)">
           Simular
         </button>
         <button
           class="btn-light mx-1"
-          @click="router.push('/relatorio/' + project.id)"
+          @click="router.push('/projeto/' + project.id)"
         >
           Relatório
         </button>
         <button
           class="btn-light mx-1"
-          @click="router.push('/editar/projeto/' + project.id)"
+          @click="router.push('/projeto/' + project.id)"
         >
           Editar
         </button>

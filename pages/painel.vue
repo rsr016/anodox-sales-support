@@ -40,7 +40,7 @@
           <UButton
             icon="i-heroicons-document-plus"
             :label="'Novo Projeto'"
-            @click="router.push(`/editar/projeto/novo_${row.id}`)"
+            @click="router.push(`/projeto/novo_${row.id}`)"
             class=""
           />
           <UButton
