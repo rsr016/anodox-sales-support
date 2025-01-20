@@ -1,9 +1,7 @@
 Pagina de editar cliente e listar projetos dele (para depois editar também)
 Fix layout in small screen when editing project
-
 Arrow types: curve, ramp
-
-URGENTE Add optimizer (CAPEX vs savings?).
 URGENTE fazer novo projeto com dados 30 min baseado no jbs
+Problem bessperformance not calculated upon changes do project_data (watchers in components? better make it)
 
 Seleção de tipo de projeto muda layout de resultados e layout de edição (exemplo conta para consumidor, tarifas e receitas para GD e curtailment diferente)

@@ -2,16 +2,16 @@
   <div>
     <div v-if="!exiting" class="grid grid-cols-12 grid-flow-col mt-5 mb-6">
       <div class="col-span-12 md:col-span-8 container">
-        <p>
+        <!-- <p>
           <span class="font-semibold text-gray-900"
             >{{ project.client.name }} </span
           ><span>{{ project.type ? " - " + project.type : '' }}</span>
-          <!-- <UButton
+          <UButton
             @click.prevent="leavePage('/editar/projeto/' + project.id)"
             class="ml-5"
             >Editar Projeto</UButton
-          > -->
-        </p>
+          >
+        </p> -->
         <p class="mt-3">Parametros:</p>
         <UTable :rows="dataRows" :columns="dataColumns" :ui="dataTableConfig">
           <template #value-data="{ row }">

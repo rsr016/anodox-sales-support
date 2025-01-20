@@ -8,8 +8,6 @@
       </div>
 
       <p class="mx-4 my-auto text-right">{{ project_data.type }}</p>
-
-      <!-- <p class="mx-4 my-auto text-right">{{ project_data.type }}</p> -->
     </div>
     <UTabs :items="pageSections" class="w-full my-5">
       <template #edit="{ item }">

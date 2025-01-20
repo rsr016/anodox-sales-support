@@ -1,34 +1,19 @@
 <template>
   <div>
-    <div
-      class="grid grid-cols-2 top-24 sticky justify-between items-center z-40 bg-slate-50"
-    >
-      <!-- <div class="grid grid-cols-2">
-        <div class="col-span-2 grid-flow-row flex">
-          <h2 class="text-xl font-bold">{{ modelValue.client.name }}</h2>
-          <p class="mx-4 my-auto">{{ modelValue.client.type }}</p>
-        </div>
-      </div> -->
-      <div class="flex justify-right" v-if="isChanged" >
+    <div class="fixed top-32 right-24 z-50" v-if="isChanged" >
         <UButton
           @click.prevent="saveProject"
           :disabled="!isChanged"
-          class="link disabled:bg-slate-100 ml-auto mr-3"
-          >Salvar</UButton
+          class="link disabled:bg-slate-100 shadow-lg p-3"
+          :color="'emerald'"
+          >Salvar Alterações</UButton
         >
-        <!-- <UButton @click="router.push('/painel')" class="link mx-3"
-          >Painel</UButton
-        >
-        <UButton @click="router.push('/simula/' + modelValue.id)" class="link"
-          >Simular</UButton
-        > -->
-      </div>
     </div>
     <UDivider
       label="Descritivo"
       :ui="divUi"
     />
-    <div class="px-5 my-2">
+    <div class="px-5 my-5">
       <div class="col-span-2 grid-flow-row flex my-1">
         <p class="my-auto mr-3">Descrição:</p>
         <UTextarea
@@ -41,7 +26,7 @@
       </div>
     </div>
 
-    <div class="px-5">
+    <div class="px-5 my-5">
       <div class="col-span-2 grid-flow-row flex my-1">
         <p class="my-auto mr-3">Tipo de projeto:</p>
         <USelect
@@ -112,6 +97,10 @@
 </template>
 
 <script setup>
+const supabase = useSupabaseClient();
+const toast = useToast();
+const route = useRoute();
+
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -124,7 +113,7 @@ const isNew = ref(false);
 
 const divUi = {
   wrapper: {
-    base: "my-5",
+    // base: "my-5",
   },
   label: "text-primary-500 dark:text-primary-400 text-lg",
 };
@@ -304,15 +293,13 @@ async function saveProject() {
       type: "success",
     });
     for (let property in form.value) {
-      props.modelValue[property] = form.value[property];
+      props.modelValue.value[property] = form.value[property];
     }
     isNew.value = false;
   }
 }
 
 onMounted(() => {
-  // console.log(props.modelValue);
-  // console.log(props.modelValue.value);
   for (let formItem of project_form) {
     form.value[formItem.model] = props.modelValue[formItem.model];
   }

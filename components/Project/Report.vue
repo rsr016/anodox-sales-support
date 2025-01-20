@@ -9,11 +9,31 @@
         <div class="p-2">
           <p class="font-light">Custo do sistema instalado (R$/kWh)</p>
           <UInput v-model="optimizer.cost" label="Custo do BESS" class="mb-3" />
+          <div class="flex justify-between">
+            <div class="grow mr-5">
+              <p class="font-light">Início (kWh)</p>
+              <UInput
+                v-model="optimizer.min_energy"
+                label="Custo do BESS"
+                class="mb-3"
+              />
+            </div>
+            <div class="grow">
+              <p class="font-light">Fim (kWh)</p>
+              <UInput
+                v-model="optimizer.max_energy"
+                label="Custo do BESS"
+                class="mb-3"
+              />
+            </div>
+          </div>
           <UDivider
             label="Resultados"
             :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
           />
+          <!-- <Transition name="slide-fade"> -->
           <div
+            v-if="!optimizer.calculating && !optimizer.finalized"
             class="grid grid-cols-2 grid-flow-row gap-2 justify-between my-3"
           >
             <p class="font-light">Capacidade do BESS:</p>
@@ -27,6 +47,25 @@
               {{ formatNum(optimizerResults.return * 100) }} %
             </p>
           </div>
+          <!-- <div v-else> -->
+          <UProgress
+            v-if="optimizer.calculating && !optimizer.finalized"
+            :value="bess_capacity_immediate"
+            :max="optimizer.max_energy"
+            :color="'emerald'"
+            animation="carousel"
+            :ui="{ wrapper: 'my-3' }"
+          />
+          <highchart
+            v-if="optimizer.calculating || optimizer.finalized"
+            :options="chartOptions"
+            class="border rounded-lg"
+            :update="['options']"
+            :redraw="true"
+          />
+          <!-- </div> -->
+
+          <!-- </Transition> -->
         </div>
 
         <template #footer>
@@ -34,7 +73,7 @@
             <UButton @click="optimizer.open = false">Fechar</UButton>
             <UButton
               :disabled="optimizer.calculating"
-              @click="startOptimizing"
+              @click.prevent="startOptimizing"
               :color="'emerald'"
               >Otimizar</UButton
             >
@@ -48,7 +87,7 @@
       :ui="{ label: 'text-primary-500 dark:text-primary-400 text-lg' }"
     />
     <div class="container my-4">
-      <div class="grid grid-cols-4 gap-2">
+      <div class="grid grid-cols-4 gap-2 justify-center">
         <UCard :ui="cardUI">
           <template #header>
             <p class="text-center font-bold text-md">Período</p>
@@ -82,14 +121,41 @@
             {{ formatNum(overviewData.gain) }}
           </p>
         </UCard>
+        <div class="col-start-2">
+          <UCard :ui="cardUI">
+            <template #header>
+              <p class="text-center font-bold text-sm">Demanda Evitada</p>
+            </template>
+            <p class="text-center text-sm">
+              {{ formatNum(overviewData.demand) }}
+            </p>
+          </UCard>
+        </div>
+        <div class="col-start-3">
+          <UCard :ui="cardUI">
+            <template #header>
+              <p class="text-center font-bold text-sm">TUSD Evitada</p>
+            </template>
+            <p class="text-center text-sm">
+              {{ formatNum(overviewData.tusd) }}
+            </p>
+          </UCard>
+        </div>
       </div>
     </div>
 
     <div class="flex my-5 place-content-center place-items-center">
       <UButton
+        icon="i-hugeicons-download-04"
         @click="exportToCSV(modelValue.powerprofile, modelValue.id)"
-        class="px-4 py-2"
-        >Baixar dados completos em CSV</UButton
+        class="mx-3 py-2"
+        >Relatório Completo CSV</UButton
+      >
+      <UButton
+        icon="i-hugeicons-download-04"
+        @click="exportToCSV(monthReport, 'mensal_' + modelValue.id)"
+        class="mx-3 py-2"
+        >Mensal CSV</UButton
       >
     </div>
 
@@ -123,7 +189,6 @@
       v-model:expand="expand"
       :multiple-expand="false"
     >
-      // v-model="selectedRows" @select="select">
       <template #month-data="{ row }">
         <p class="font-bold text-center text-xl">
           {{
@@ -135,6 +200,26 @@
           }}
         </p>
       </template>
+      <template #demand-data="{ row }">
+        <div class="grid grid-rows-2 gap-1">
+          <p class="font-bold text-center">
+            {{ formatNum(row.bill[0].new - row.bill[0].old) }}
+          </p>
+          <div class="flex flex-inline">
+            <p class="text-sm font-light text-center">
+              {{ formatNum(row.bill[0].old) }}
+            </p>
+            <UIcon
+              name="i-hugeicons-arrow-right-02"
+              class="w-3 h-3 mx-1 my-auto"
+            />
+            <p class="text-sm font-light text-center">
+              {{ formatNum(row.bill[0].new) }}
+            </p>
+          </div>
+        </div>
+      </template>
+
       <template #consumption-data="{ row }">
         <div class="grid grid-rows-2 gap-1">
           <p class="font-bold text-center">
@@ -221,6 +306,7 @@
 
 <script setup>
 import { format, intlFormat, parseISO } from "date-fns";
+import colors from "#tailwind-config/theme/colors";
 
 const props = defineProps({
   modelValue: {
@@ -244,18 +330,124 @@ const optimizer = ref({
   open: false,
   cost: 2000,
   calculating: false,
+  finalized: false,
+  initial_energy: null,
+  min_energy: 200,
+  max_energy: 4000,
   previous_results: {},
+  sizes: [],
+  returns: [],
   previous_cost_change: 0,
   previous_return_change: 0,
 });
 
-const optimizerResults = computed(() => {
+async function startOptimizing() {
+  optimizer.value.calculating = true;
+
+  let steps = 20;
+  let increment =
+    (optimizer.value.max_energy - optimizer.value.min_energy) / steps;
+
+  optimizer.initial_energy = props.modelValue.energy_capacity;
+  bess_capacity_immediate.value = optimizer.value.min_energy;
+  await new Promise((resolve) => setTimeout(resolve, 200));
+
+  while (bess_capacity_immediate.value <= optimizer.value.max_energy) {
+    optimizer.value.sizes.push(props.modelValue.value.energy_capacity);
+    optimizer.value.returns.push(optimizerResults.value.return);
+    bess_capacity_immediate.value = bess_capacity_immediate.value + increment;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+
+  bess_capacity_immediate.value = optimizer.initial_energy;
+  optimizer.value.finalized = true;
+  optimizer.value.calculating = false;
+}
+
+const chartOptions = computed(() => {
   return {
-    capacity: props.modelValue.energy_capacity,
-    price: optimizer.value.cost * props.modelValue.energy_capacity,
-    return:
-      overviewData.value.gain /
-      (optimizer.value.cost * props.modelValue.energy_capacity),
+    cycles: 0,
+    chart: {
+      type: "spline",
+      scrollablePlotArea: {
+        // minWidth: 700,
+        scrollPositionX: 1,
+      },
+    },
+    xAxis: {
+      crosshair: true,
+      // type: 'datetime',
+      // minTickInterval: 365 * 24 * 36e5,
+      labels: {
+        align: "left",
+      },
+    },
+    title: {
+      text: "Retorno do Investimento",
+    },
+    credits: {
+      enabled: false,
+    },
+    tooltip: {
+      headerFormat: "<b>{series.name}</b><br/>",
+      pointFormat: "{point.x} kWh<br/>{point.y:.2f} % a.a.",
+      style: {
+        width: "250px",
+      },
+      valueSuffix: " %",
+      shared: true,
+    },
+
+    yAxis: [
+      {
+        // min: 0,
+        labels: {
+          enabled: true,
+        },
+        title: {
+          text: "",
+        },
+        gridLineColor: "rgba(0, 0, 0, 0.07)",
+      },
+    ],
+    plotOptions: {
+      area: {
+        stacking: "normal",
+        lineWidth: 0.8,
+      },
+      line: {
+        lineWidth: 1.5,
+      },
+      flags: {
+        tooltip: {
+          xDateFormat: "%HH:%mm %B %e, %Y",
+        },
+        accessibility: {
+          point: {
+            valueDescriptionFormat:
+              "{xDescription}. {point.title}: {point.text}.",
+          },
+        },
+      },
+    },
+    series: [
+      {
+        yAxis: 0,
+        name: "Retorno Anual (%)",
+        id: "return",
+        type: "spline",
+        data: optimizer.value.sizes.map((size, index) => {
+          return {
+            x: size,
+            y: optimizer.value.returns[index] * 100,
+          };
+        }),
+        marker: {
+          enabled: true,
+        },
+        color: colors.green[500],
+      },
+    ],
   };
 });
 
@@ -270,6 +462,7 @@ defineShortcuts({
 
 const tableColumns = [
   { key: "month", label: "Mês", sortable: true },
+  { key: "demand", label: "Demanda" },
   { key: "consumption", label: "Consumo" },
   { key: "peak", label: "Ponta" },
   { key: "offpeak", label: "Fora Ponta" },
@@ -296,6 +489,16 @@ const cardUI = {
     padding: "px-2 py-2 sm:p-2",
   },
 };
+
+const optimizerResults = computed(() => {
+  return {
+    capacity: props.modelValue.energy_capacity,
+    price: optimizer.value.cost * props.modelValue.energy_capacity,
+    return:
+      overviewData.value.gain /
+      (optimizer.value.cost * props.modelValue.energy_capacity),
+  };
+});
 
 const billsByMonth = computed(() => {
   let months = props.modelValue.powerprofile.reduce((acc, cur) => {
@@ -338,6 +541,8 @@ const overviewData = computed(() => {
     saving: 0,
     cost: 0,
     gain: 0,
+    demand: 0,
+    tusd: 0,
   };
   overview.saving = -billsByMonth.value.reduce((acc, cur) => {
     return (
@@ -352,24 +557,39 @@ const overviewData = computed(() => {
     return acc + cur.bill[2].saving + cur.bill[4].saving;
   }, 0);
   overview.gain = overview.saving + overview.cost;
+  overview.demand = billsByMonth.value.reduce((acc, cur) => {
+    return acc + cur.bill[1].old;
+  }, 0);
+  overview.tusd = billsByMonth.value.reduce((acc, cur) => {
+    return acc + cur.bill[3].old - cur.bill[3].new;
+  }, 0);
   return overview;
 });
 
-const bess_capacity_immediate = computed({
-  get: () => props.modelValue?.energy_capacity,
-  set: (value) => {
-    props.modelValue.value.energy_capacity = value;
-    consumerBESS(props.modelValue);
-  },
+const monthReport = computed(() => {
+  return billsByMonth.value.map((month) => {
+    return {
+      month: month.month,
+      demand: month.bill[0].new - month.bill[0].old,
+      consumption:
+        month.bill[3].new -
+        month.bill[3].old +
+        month.bill[2].new -
+        month.bill[2].old,
+      peak: month.bill[3].new - month.bill[3].old,
+      offpeak: month.bill[2].new - month.bill[2].old,
+    };
+  });
 });
 
-const bess_capacity_lazy = computed({
-  get: () => modelValue?.energy_capacity,
+const bess_capacity_immediate = computed({
+  get: () => props.modelValue.energy_capacity,
   set: (value) => {
     props.modelValue.value.energy_capacity = value;
-    setTimeout(function () {
-      consumerBESS(props.modelValue);
-    }, 1000);
+    setTimeout(async function () {
+      props.modelValue.value = await consumerBESS(props.modelValue);
+    }, 0);
+    // emit('update:model-value', value)
   },
 });
 

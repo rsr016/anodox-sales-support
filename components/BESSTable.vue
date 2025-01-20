@@ -72,17 +72,6 @@
           </p>
         </div>
 
-        <!-- <div class="grid grid-cols-3">
-          <UIcon v-if="flowColor(row) == 'green'" name="i-heroicons-arrow-left" :class="'w-5 h-5 mx-auto text-' + flowColor(row) + '-400'" />
-          <p :class="'col-start-2 col-span-1 justify-self-end text-' + flowColor(row) + '-400'">
-            {{
-              row.service_to_bess - row.service_from_bess == 0
-                ? "-"
-                : formatNum(row.service_to_bess - row.service_from_bess)
-            }}
-          </p>
-          <UIcon v-if="flowColor(row) == 'red'" name="i-heroicons-arrow-left" :class="'w-5 h-5 mx-auto text-' + flowColor(row) + '-400'" />
-        </div> -->
       </template>
       <template #bess_soc-data="{ row }">
         <UMeter :color="barColor(row)" :value="row.bess_soc * 100" indicator>
@@ -174,6 +163,9 @@ const tableConfig = {
   tr: {
     base: "hover:bg-slate-200",
   },
+  th: {
+    base: "text-center",
+  },
 };
 
 const columns = [
@@ -188,7 +180,7 @@ const columns = [
   // },
   {
     key: "flow_bess",
-    label: "Fluxo Energia (kw)",
+    label: "Fluxo Potência (kW)",
     class: "max-w-30 px-2",
   },
   // {
