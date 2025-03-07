@@ -27,9 +27,9 @@
           class="mx-2"
         />
       </template>
-      <template #power_cons_total-data="{ row }">
+      <template #power_cons-data="{ row }">
         <p class="justify-self-center">
-          {{ row.power_cons_total.toFixed(2) }}
+          {{ row.power_cons.toFixed(2) }}
         </p>
       </template>
       <template #service_grid-data="{ row }">
@@ -54,7 +54,7 @@
           />
           <p class="justify-between row-start-3 flex">
             <span>Consumo:</span>
-            <span class="ml-3">{{ row.power_cons_total.toFixed(2) }}</span>
+            <span class="ml-3">{{ row.power_cons.toFixed(2) }}</span>
           </p>
           <UIcon
             v-if="flowColor(row) == 'red'"
@@ -62,7 +62,7 @@
             :class="'w-5 h-5 mx-auto text-' + flowColor(row) + '-400'"
           />
           <UIcon
-            v-if="row.power_cons_total > 0"
+            v-if="row.power_cons > 0"
             name="i-heroicons-arrow-turn-down-left"
             :class="'w-5 h-5 mx-auto row-start-3'"
           />
@@ -174,7 +174,7 @@ const columns = [
     label: "Hora",
   },
   // {
-  //   key: "power_cons_total",
+  //   key: "power_cons",
   //   label: "Consumo (kW)",
   //   class: "max-w-40",
   // },

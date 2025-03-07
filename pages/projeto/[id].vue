@@ -3,7 +3,11 @@
   <div v-else class="container mx-auto">
     <div class="grid grid-flow-col mb-5 pb-4 justify-between">
       <div class="col-span-1 grid-flow-row flex">
-        <a class="text-xl font-bold" :href="'/cliente/' + project_data.client.id">{{ project_data.client.name }}</a>
+        <a
+          class="text-xl font-bold"
+          :href="'/cliente/' + project_data.client.id"
+          >{{ project_data.client.name }}</a
+        >
         <p class="mx-4 my-auto">{{ project_data.client.type }}</p>
       </div>
 
@@ -102,9 +106,12 @@ const { data: project_data } = await useAsyncData("project_data", async () => {
 
   const { data } = await supabase
     .from("projects")
-    .select("*, powerprofile(*), client:clients!inner(*), solutions(*)")
+    .select("*, powerprofile(id, project_id, timestamp, power_cons, power_grid_peak), client:clients!inner(*), solutions(*)")
     .eq("id", projectId)
     .single();
+  data.powerprofile.sort(
+    (a, b) => new Date(a.timestamp) - new Date(b.timestamp)
+  );
   const { data: solutions } = await supabase.from("solutions").select("*");
   data.solutions = solutions;
   // loading.value = false;

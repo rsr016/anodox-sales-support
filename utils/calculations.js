@@ -2,7 +2,7 @@ import colors from "#tailwind-config/theme/colors";
 import { parseISO  } from "date-fns";
 
 export const findPeaks = (data) => {
-  let peaks = data.map((d) => d.power_cons_peak == 0 ? 0 : (d.power_cons_peak - d.service_from_bess > 0 ? 1 : -1));
+  let peaks = data.map((d) => d.power_grid_peak == 0 ? 0 : (d.power_grid_peak * d.power_cons - d.service_from_bess > 0 ? 1 : -1));
 
   let bands = new Array();
 
@@ -76,12 +76,13 @@ export const consumerBESS = async (data) => {
       item.bess_cycles = arr[index - 1].bess_cycles;
     }
 
-    if (item.power_cons_peak > 0) {
+    // Check if is peak
+    if (item.power_grid_peak > 0) {
       item.power_available = 0; // Power
-      item.power_requested = item.power_cons_peak; // Power
+      item.power_requested = item.power_cons * item.power_grid_peak; // Power
     } else {
-      item.power_available = Math.max(item.contracted - item.power_cons_total, 0); // Power
-      item.power_requested = Math.max(item.power_cons_total - item.contracted, 0); // Power
+      item.power_available = Math.max(item.contracted - item.power_cons, 0); // Power
+      item.power_requested = Math.max(item.power_cons - item.contracted, 0); // Power
     }
 
     if (item.power_available > 0) {
@@ -99,7 +100,7 @@ export const consumerBESS = async (data) => {
         sendout_limit // Power limit
       ); // Power
     }
-    item.service_grid = item.power_cons_total - item.service_from_bess + item.service_to_bess; // Power
+    item.service_grid = item.power_cons - item.service_from_bess + item.service_to_bess; // Power
 
     item.bess_gross_charge = item.service_to_bess / time_factor; // Energy from power
     item.bess_net_charge = item.bess_gross_charge * item.eff_charge; // Energy
@@ -128,26 +129,26 @@ export const consumerBill = (perf, proj) => {
     // Power
     demand: {
       item: 'Demanda (kW)',
-      old: Math.max(Math.max.apply(Math, perf.map((x) => x.power_cons_total)), proj.contracted_demand),
+      old: Math.max(Math.max.apply(Math, perf.map((x) => x.power_cons)), proj.contracted_demand),
       new: Math.max.apply(Math, perf.map((x) => x.service_grid)),
     },
     // Power
     surcharge: {
       item: 'Ultrapassagem (kW)',
-      old: Math.max(Math.max.apply(Math, perf.map((x) => x.power_cons_total)) - proj.contracted_demand, 0) ,
+      old: Math.max(Math.max.apply(Math, perf.map((x) => x.power_cons)) - proj.contracted_demand, 0) ,
       new: Math.max.apply(Math, perf.map((x) => x.service_grid)) - proj.contracted_demand,
     },
     // Energy (fixed proportional energy in time block in case peak cutoff does not match time block)
     offpeaktusd: {
       item: 'TUSD Fora Ponta (kWh)',
-      old: perf.reduce(function (acc, cur) { return acc + (cur.power_cons_offpeak) / time_factor }, 0),
-      new: perf.reduce(function (acc, cur) { return acc + (cur.power_cons_offpeak > 0 ? cur.power_cons_offpeak / cur.power_cons_total * cur.service_grid : 0) / time_factor }, 0),
+      old: perf.reduce(function (acc, cur) { return acc + (cur.power_cons * (1 - cur.power_grid_peak)) / time_factor }, 0),
+      new: perf.reduce(function (acc, cur) { return acc + (cur.power_cons * (1 - cur.power_grid_peak) > 0 ? cur.power_cons * (1 - cur.power_grid_peak) / cur.power_cons * cur.service_grid : 0) / time_factor }, 0),
     },
     // Energy (fixed proportional energy in time block in case peak cutoff does not match time block)
     peaktusd: {
       item: 'TUSD Ponta (kWh)',
-      old: perf.reduce(function (acc, cur) { return acc + (cur.power_cons_peak / time_factor) }, 0) ,
-      new: perf.reduce(function (acc, cur) { return acc + (cur.power_cons_peak > 0 ? cur.power_cons_peak / cur.power_cons_total * cur.service_grid : 0) / time_factor }, 0) ,
+      old: perf.reduce(function (acc, cur) { return acc + (cur.power_cons * cur.power_grid_peak / time_factor) }, 0) ,
+      new: perf.reduce(function (acc, cur) { return acc + (cur.power_cons * cur.power_grid_peak > 0 ? cur.power_cons * cur.power_grid_peak / cur.power_cons * cur.service_grid : 0) / time_factor }, 0) ,
     }
   }
 

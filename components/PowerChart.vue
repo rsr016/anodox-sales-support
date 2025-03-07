@@ -20,11 +20,11 @@ const peakBands = computed(function () {
 });
 
 const powerOriginal = computed(() => {
-  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat(p.power_cons_total.toFixed(2)) }));
+  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat(p.power_cons.toFixed(2)) }));
 });
 
 const powerFromGrid = computed(() => {
-  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((p.power_cons_total -p.service_from_bess).toFixed(2)) }));
+  return props.data.map((p, i) => ({ x: Date.parse(p.timestamp), y: parseFloat((p.power_cons -p.service_from_bess).toFixed(2)) }));
 });
 
 const powerToBESS = computed(() => {
